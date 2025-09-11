@@ -572,25 +572,37 @@ dnsCommand
 					default: currentRecord.data.content,
 					validate: (input, answers) => {
 						if (!input.trim()) return "Content is required";
-						
+
 						const content = input.trim();
 						const type = answers?.type;
-						
+
 						if (type === "A") {
-							const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
-							return ipv4Regex.test(content) || "A records must contain a valid IPv4 address";
+							const ipv4Regex =
+								/^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
+							return (
+								ipv4Regex.test(content) ||
+								"A records must contain a valid IPv4 address"
+							);
 						}
-						
+
 						if (type === "AAAA") {
-							const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(::1)|::)$/;
-							return ipv6Regex.test(content) || "AAAA records must contain a valid IPv6 address";
+							const ipv6Regex =
+								/^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(::1)|::)$/;
+							return (
+								ipv6Regex.test(content) ||
+								"AAAA records must contain a valid IPv6 address"
+							);
 						}
-						
+
 						if (type === "CNAME") {
-							const hostnameRegex = /^(?=.{1,253}$)([a-z0-9-]+\.)*[a-z0-9-]+$/;
-							return hostnameRegex.test(content) || "CNAME records must contain a valid hostname";
+							const hostnameRegex =
+								/^(?=.{1,253}$)([a-z0-9-]+\.)*[a-z0-9-]+$/;
+							return (
+								hostnameRegex.test(content) ||
+								"CNAME records must contain a valid hostname"
+							);
 						}
-						
+
 						return true;
 					},
 				},
@@ -630,7 +642,8 @@ dnsCommand
 				type: answers.type,
 				content: answers.content.trim(),
 				ttl: parseInt(answers.ttl),
-				proxied: answers.type === "TXT" ? false : (answers.proxied || false),
+				proxied:
+					answers.type === "TXT" ? false : answers.proxied || false,
 			};
 
 			const response = await makeRequest(
