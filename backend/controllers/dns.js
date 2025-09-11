@@ -6,6 +6,13 @@ const handleCreateDNSRecord = async (req, res) => {
 		const ownerUserId = req.user._id;
 		const subdomainId = req.params.subdomainId;
 
+		if (name != req.subdomain.name) {
+			return res.status(400).send({
+				message: "DNS record name must match subdomain name",
+				error: "Bad Request",
+			});
+		}
+
 		if (type === "CNAME") {
 			const existingCNAMEorAny = await DNSRecord.findOne({
 				name,

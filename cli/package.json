@@ -1,8 +1,8 @@
 {
-	"name": "clouly-cli",
+	"name": "clouly",
 	"version": "1.0.0",
 	"bin": {
-		"clouly": "./index.js"
+		"clouly": "index.js"
 	},
 	"description": "Clouly DNS Management CLI - A powerful command-line interface for managing DNS records and subdomains",
 	"license": "MIT",
