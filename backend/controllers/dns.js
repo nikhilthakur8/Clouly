@@ -6,19 +6,33 @@ const handleCreateDNSRecord = async (req, res) => {
 		const ownerUserId = req.user._id;
 		const { name, _id: subdomainId } = req.subdomain;
 
+		const existingCNAME = await DNSRecord.findOne({
+			name,
+			subdomain: subdomainId,
+			type: "CNAME",
+		});
+
 		if (type === "CNAME") {
-			const existingCNAMEorAny = await DNSRecord.findOne({
+			const existingAny = await DNSRecord.findOne({
 				name,
 				subdomain: subdomainId,
 			});
-			if (existingCNAMEorAny) {
+
+			if (existingAny) {
 				return res.status(400).send({
 					message:
-						"CNAME record already exists or name has other records",
+						"CNAME record cannot coexist with other records on the same name",
 					error: "Bad Request",
 				});
 			}
 		} else {
+			if (existingCNAME) {
+				return res.status(400).send({
+					message: `${type} record cannot be created because a CNAME already exists for this name`,
+					error: "Bad Request",
+				});
+			}
+
 			const existingRecord = await DNSRecord.findOne({
 				name,
 				type,
@@ -34,13 +48,7 @@ const handleCreateDNSRecord = async (req, res) => {
 			}
 		}
 
-		const payload = {
-			name,
-			ttl,
-			type,
-			content,
-			proxied,
-		};
+		const payload = { name, ttl, type, content, proxied };
 		const cfResponse = await cfService.post("/dns_records", payload);
 
 		const dnsRecord = await DNSRecord.create({
@@ -53,15 +61,17 @@ const handleCreateDNSRecord = async (req, res) => {
 			ttl,
 			proxied,
 		});
+
 		return res.status(201).send({
 			message: "DNS Record created successfully",
 			data: dnsRecord,
 		});
 	} catch (error) {
-		console.log(error.response?.data.errors);
-		return res
-			.status(500)
-			.send({ message: "Internal server error", error: error.message });
+		console.log(error.response?.data?.errors || error.message);
+		return res.status(500).send({
+			message: "Internal server error",
+			error: error.message,
+		});
 	}
 };
 
