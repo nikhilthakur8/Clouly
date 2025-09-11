@@ -6,7 +6,7 @@
 
 ```bash
 # Install Clouly CLI
-npm install -g @nikhilthakur8/clouly-cli
+npm install -g clouly
 
 # Login to your account
 clouly auth login
