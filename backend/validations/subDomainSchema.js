@@ -13,8 +13,6 @@ const subdomainZodSchema = z
 			)
 			.transform((val) => val.toLowerCase()),
 
-		status: z.enum(["active", "disabled"]).default("active"),
-
 		notes: z
 			.string()
 			.optional()

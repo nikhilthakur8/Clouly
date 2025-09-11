@@ -24,9 +24,20 @@ subdomainRouter.post(
 	validateBody(subdomainZodSchema),
 	handleCreateSubdomain
 );
-subdomainRouter.get("/", handleGetAllSubdomains);
-subdomainRouter.get("/:subdomainId", handleGetSubdomain);
-subdomainRouter.delete("/:subdomainId", handleDeleteSubdomain);
+subdomainRouter.get(
+	"/",
+	handleGetAllSubdomains
+);
+subdomainRouter.get(
+	"/:subdomainId",
+	authenticateSubdomainOwnership,
+	handleGetSubdomain
+);
+subdomainRouter.delete(
+	"/:subdomainId",
+	authenticateSubdomainOwnership,
+	handleDeleteSubdomain
+);
 
 subdomainRouter.post(
 	"/:subdomainId/dns",

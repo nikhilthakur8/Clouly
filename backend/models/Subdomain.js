@@ -14,11 +14,6 @@ const subdomainSchema = new mongoose.Schema(
 			ref: "User",
 			required: true,
 		},
-		status: {
-			type: String,
-			enum: ["active", "disabled"],
-			default: "active",
-		},
 		notes: String,
 	},
 	{ timestamps: true }

@@ -9,15 +9,6 @@ const dnsRecordZodSchema = z
 	.object({
 		type: z.enum(["A", "AAAA", "TXT", "CNAME"]),
 
-		name: z
-			.string()
-			.trim()
-			.min(1, "Name is required")
-			.regex(
-				/^[a-z0-9-]+$/,
-				"Name must be lowercase alphanumeric or hyphen"
-			),
-
 		content: z.string().trim().min(1, "Content is required"),
 
 		ttl: z.number().int().positive().default(3600),
@@ -25,8 +16,6 @@ const dnsRecordZodSchema = z
 		priority: z.number().int().nullable().optional(),
 
 		proxied: z.boolean().default(false),
-
-		status: z.enum(["active", "disabled"]).default("active"),
 	})
 	.strict()
 	.superRefine((data, ctx) => {

@@ -35,12 +35,8 @@ const handleCreateSubdomain = async (req, res) => {
 const handleGetSubdomain = async (req, res) => {
 	try {
 		const { subdomainId } = req.params;
-		const { _id: ownerUserId } = req.user;
 
-		const subdomain = await SubDomain.findOne({
-			_id: subdomainId,
-			ownerUserId,
-		});
+		const subdomain = await SubDomain.findById(subdomainId);
 
 		if (!subdomain) {
 			return res.status(404).send({
@@ -75,14 +71,11 @@ const handleGetAllSubdomains = async (req, res) => {
 	}
 };
 
-// we will implement it later because it requires cascading delete of dns records
 const handleDeleteSubdomain = async (req, res) => {
 	try {
 		const { subdomainId } = req.params;
-		const { _id: ownerUserId } = req.user;
 		const subdomain = await SubDomain.findOneAndDelete({
 			_id: subdomainId,
-			ownerUserId,
 		});
 		if (!subdomain) {
 			return res.status(404).send({

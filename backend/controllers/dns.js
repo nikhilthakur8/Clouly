@@ -2,16 +2,9 @@ const DNSRecord = require("../models/DNSRecord");
 const cfService = require("../service/cfConfig");
 const handleCreateDNSRecord = async (req, res) => {
 	try {
-		const { type, name, content, ttl, proxied } = req.body;
+		const { type, content, ttl, proxied } = req.body;
 		const ownerUserId = req.user._id;
-		const subdomainId = req.params.subdomainId;
-
-		if (name != req.subdomain.name) {
-			return res.status(400).send({
-				message: "DNS record name must match subdomain name",
-				error: "Bad Request",
-			});
-		}
+		const { name, _id: subdomainId } = req.subdomain;
 
 		if (type === "CNAME") {
 			const existingCNAMEorAny = await DNSRecord.findOne({
@@ -90,9 +83,22 @@ const handleGetAllDNSRecords = async (req, res) => {
 
 const handleUpdateDNSRecord = async (req, res) => {
 	try {
-		const { type, name, content, ttl, proxied } = req.body;
-		const subdomainId = req.params.subdomainId;
+		const { type, content, ttl, proxied } = req.body;
 		const dnsRecordId = req.params.dnsRecordId;
+		const { name, _id: subdomainId } = req.subdomain;
+		const isDataExists = await DNSRecord.findOne({
+			type,
+			name,
+			content,
+		});
+
+		if (isDataExists) {
+			return res.status(400).send({
+				message: "DNS record with this data already exists",
+				error: "Bad Request",
+			});
+		}
+
 		const dnsData = await DNSRecord.findOne({
 			_id: dnsRecordId,
 		});

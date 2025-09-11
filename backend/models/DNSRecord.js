@@ -44,11 +44,6 @@ const dnsRecordSchema = new mongoose.Schema(
 			type: Boolean,
 			default: false,
 		},
-		status: {
-			type: String,
-			enum: ["active", "disabled"],
-			default: "active",
-		},
 	},
 	{
 		timestamps: true,

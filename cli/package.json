@@ -1,24 +1,39 @@
 {
-	"name": "clouly",
-	"version": "1.0.0",
+	"name": "@nikhilthakur8/clouly-cli",
+	"version": "1.1.0",
 	"bin": {
 		"clouly": "index.js"
 	},
-	"description": "Clouly DNS Management CLI - A powerful command-line interface for managing DNS records and subdomains",
+	"description": "Clouly DNS Management CLI - A powerful command-line interface for managing DNS records and subdomains with enhanced validation and user experience",
 	"license": "MIT",
-	"author": "Nikhil Thakur",
+	"author": "Nikhil Thakur <nikhilthakur8@gmail.com>",
 	"type": "module",
 	"main": "index.js",
+	"homepage": "https://clouly.tech",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nikhilthakur8/clouly.git"
+	},
+	"bugs": {
+		"url": "https://github.com/nikhilthakur8/clouly/issues"
+	},
 	"keywords": [
 		"dns",
 		"subdomain",
 		"clouly",
 		"cli",
-		"management"
+		"management",
+		"cloudflare",
+		"api",
+		"developer-tools"
 	],
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"dev": "node index.js"
+		"dev": "node index.js",
+		"prepublishOnly": "echo 'Ready to publish'"
+	},
+	"engines": {
+		"node": ">=16.0.0"
 	},
 	"dependencies": {
 		"axios": "^1.11.0",

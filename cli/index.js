@@ -118,7 +118,7 @@ const makeRequest = async (
 program
 	.name("clouly")
 	.description("Clouly DNS Management CLI")
-	.version("1.0.0");
+	.version("1.1.0");
 
 // Authentication Commands
 const authCommand = program
@@ -233,13 +233,6 @@ subdomainCommand
 					},
 				},
 				{
-					type: "list",
-					name: "status",
-					message: "Select status:",
-					choices: ["active", "disabled"],
-					default: "active",
-				},
-				{
 					type: "input",
 					name: "notes",
 					message: "Notes (optional):",
@@ -248,7 +241,6 @@ subdomainCommand
 
 			const subdomainData = {
 				name: answers.name.toLowerCase(),
-				status: answers.status,
 			};
 
 			if (answers.notes) {
@@ -286,7 +278,6 @@ subdomainCommand
 			response.data.forEach((subdomain, index) => {
 				console.log(chalk.green(`${index + 1}. ${subdomain.name}`));
 				console.log(chalk.gray(`   ID: ${subdomain._id}`));
-				console.log(chalk.gray(`   Status: ${subdomain.status}`));
 				if (subdomain.notes) {
 					console.log(chalk.gray(`   Notes: ${subdomain.notes}`));
 				}
@@ -318,7 +309,6 @@ subdomainCommand
 			console.log("");
 			console.log(chalk.green(`Name: ${response.data.name}`));
 			console.log(chalk.gray(`ID: ${response.data._id}`));
-			console.log(chalk.gray(`Status: ${response.data.status}`));
 			if (response.data.notes) {
 				console.log(chalk.gray(`Notes: ${response.data.notes}`));
 			}
@@ -386,22 +376,42 @@ dnsCommand
 				},
 				{
 					type: "input",
-					name: "name",
-					message: "Enter record name:",
-					validate: (input) => {
-						const regex = /^[a-z0-9-]+$/;
-						return (
-							regex.test(input) ||
-							"Name must be lowercase alphanumeric or hyphen"
-						);
-					},
-				},
-				{
-					type: "input",
 					name: "content",
 					message: "Enter record content:",
-					validate: (input) => {
-						return input.trim().length > 0 || "Content is required";
+					validate: (input, answers) => {
+						if (!input.trim()) return "Content is required";
+
+						const content = input.trim();
+						const type = answers?.type;
+
+						if (type === "A") {
+							const ipv4Regex =
+								/^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
+							return (
+								ipv4Regex.test(content) ||
+								"A records must contain a valid IPv4 address"
+							);
+						}
+
+						if (type === "AAAA") {
+							const ipv6Regex =
+								/^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(::1)|::)$/;
+							return (
+								ipv6Regex.test(content) ||
+								"AAAA records must contain a valid IPv6 address"
+							);
+						}
+
+						if (type === "CNAME") {
+							const hostnameRegex =
+								/^(?=.{1,253}$)([a-z0-9-]+\.)*[a-z0-9-]+$/;
+							return (
+								hostnameRegex.test(content) ||
+								"CNAME records must contain a valid hostname"
+							);
+						}
+
+						return true;
 					},
 				},
 				{
@@ -422,23 +432,26 @@ dnsCommand
 					name: "proxied",
 					message: "Enable proxy?",
 					default: false,
-				},
-				{
-					type: "list",
-					name: "status",
-					message: "Select status:",
-					choices: ["active", "disabled"],
-					default: "active",
+					when: (answers) => {
+						if (answers.type === "TXT") {
+							console.log(
+								chalk.yellow(
+									"   ⚠️ Note: TXT records cannot be proxied"
+								)
+							);
+							return false;
+						}
+						return true;
+					},
 				},
 			]);
 
 			const dnsData = {
 				type: answers.type,
-				name: answers.name.toLowerCase(),
 				content: answers.content.trim(),
 				ttl: parseInt(answers.ttl),
-				proxied: answers.proxied,
-				status: answers.status,
+				proxied:
+					answers.type === "TXT" ? false : answers.proxied || false,
 			};
 
 			const response = await makeRequest(
@@ -481,7 +494,6 @@ dnsCommand
 				console.log(chalk.gray(`   ID: ${record._id}`));
 				console.log(chalk.gray(`   Content: ${record.content}`));
 				console.log(chalk.gray(`   TTL: ${record.ttl}`));
-				console.log(chalk.gray(`   Status: ${record.status}`));
 				console.log(
 					chalk.gray(`   Proxied: ${record.proxied ? "Yes" : "No"}`)
 				);
@@ -509,7 +521,6 @@ dnsCommand
 			console.log(chalk.gray(`Name: ${response.data.name}`));
 			console.log(chalk.gray(`Content: ${response.data.content}`));
 			console.log(chalk.gray(`TTL: ${response.data.ttl}`));
-			console.log(chalk.gray(`Status: ${response.data.status}`));
 			console.log(
 				chalk.gray(`Proxied: ${response.data.proxied ? "Yes" : "No"}`)
 			);
@@ -556,24 +567,31 @@ dnsCommand
 				},
 				{
 					type: "input",
-					name: "name",
-					message: "Enter record name:",
-					default: currentRecord.data.name,
-					validate: (input) => {
-						const regex = /^[a-z0-9-]+$/;
-						return (
-							regex.test(input) ||
-							"Name must be lowercase alphanumeric or hyphen"
-						);
-					},
-				},
-				{
-					type: "input",
 					name: "content",
 					message: "Enter record content:",
 					default: currentRecord.data.content,
-					validate: (input) => {
-						return input.trim().length > 0 || "Content is required";
+					validate: (input, answers) => {
+						if (!input.trim()) return "Content is required";
+						
+						const content = input.trim();
+						const type = answers?.type;
+						
+						if (type === "A") {
+							const ipv4Regex = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
+							return ipv4Regex.test(content) || "A records must contain a valid IPv4 address";
+						}
+						
+						if (type === "AAAA") {
+							const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(::1)|::)$/;
+							return ipv6Regex.test(content) || "AAAA records must contain a valid IPv6 address";
+						}
+						
+						if (type === "CNAME") {
+							const hostnameRegex = /^(?=.{1,253}$)([a-z0-9-]+\.)*[a-z0-9-]+$/;
+							return hostnameRegex.test(content) || "CNAME records must contain a valid hostname";
+						}
+						
+						return true;
 					},
 				},
 				{
@@ -594,23 +612,25 @@ dnsCommand
 					name: "proxied",
 					message: "Enable proxy?",
 					default: currentRecord.data.proxied,
-				},
-				{
-					type: "list",
-					name: "status",
-					message: "Select status:",
-					choices: ["active", "disabled"],
-					default: currentRecord.data.status,
+					when: (answers) => {
+						if (answers.type === "TXT") {
+							console.log(
+								chalk.yellow(
+									"   ⚠️ Note: TXT records cannot be proxied"
+								)
+							);
+							return false;
+						}
+						return true;
+					},
 				},
 			]);
 
 			const dnsData = {
 				type: answers.type,
-				name: answers.name.toLowerCase(),
 				content: answers.content.trim(),
 				ttl: parseInt(answers.ttl),
-				proxied: answers.proxied,
-				status: answers.status,
+				proxied: answers.type === "TXT" ? false : (answers.proxied || false),
 			};
 
 			const response = await makeRequest(
