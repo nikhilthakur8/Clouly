@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api
+Disallow: /subdomain/
+Disallow: /auth/
+
+Sitemap: https://clouly.in/sitemap.xml
