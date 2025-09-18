@@ -13,11 +13,15 @@ import { Home } from "./components/Home/Home";
 import { UserLayout } from "./Layout/UserLayout";
 import { AuthLayout } from "./Layout/AuthLayout";
 import { AuthCallback } from "./components/Auth/AuthCallback";
+import { UserProvider } from "./context/UserProvider";
+import { Index } from "./components/Dashboard/Index";
+import { Analytics } from "@vercel/analytics/react";
 const router = createBrowserRouter(
 	createRoutesFromElements(
 		<>
 			<Route path="/" element={<UserLayout />}>
 				<Route index element={<Home />} />
+				<Route path="/dashboard" element={<Index />} />
 			</Route>
 			<Route element={<AuthLayout />}>
 				<Route index element={<Home />} />
@@ -35,12 +39,12 @@ const rootElement = document.getElementById("root");
 if (rootElement) {
 	createRoot(rootElement).render(
 		<>
-			{/* <UserContextProvider> */}
-			<RouterProvider router={router} />
-			<Toaster richColors position="bottom-right" theme="system" />
-			{/* <Analytics /> */}
-			{/* <SpeedInsights /> */}
-			{/* </UserContextProvider> */}
+			<UserProvider>
+				<RouterProvider router={router} />
+				<Toaster richColors position="bottom-right" theme="system" />
+				<Analytics />
+				{/* <SpeedInsights /> */}
+			</UserProvider>
 		</>
 	);
 } else {
