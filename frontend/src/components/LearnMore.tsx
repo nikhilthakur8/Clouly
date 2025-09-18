@@ -29,7 +29,7 @@ const LearnMore: React.FC = () => {
 					>
 						Render <ExternalLink className="h-3 w-3" />
 					</a>{" "}
-					and create a new project, for example{" "}
+					and create a new Domain under any project, for example{" "}
 					<code className="bg-accent px-1 py-0.5 rounded text-sm font-mono">
 						nikhil-portfolio.clouly.in
 					</code>
