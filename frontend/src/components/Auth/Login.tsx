@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import {
@@ -28,7 +28,9 @@ export const Login = () => {
 		handleSubmit,
 		formState: { errors },
 	} = useForm<LoginFormData>();
-
+	useEffect(() => {
+		window.document.title = "Login - Clouly";
+	}, []);
 	const handleGoogleLogin = async () => {
 		setLoading(true);
 		const authUrl = await getGoogleOAuthLink(redirectUri);

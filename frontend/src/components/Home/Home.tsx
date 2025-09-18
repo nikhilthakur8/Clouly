@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 export const Home = () => {
+	useEffect(() => {
+		window.document.title = "Home - Clouly";
+	}, []);
 	return (
 		<div className="bg-background text-foreground flex flex-col min-h-[80svh] max-w-6xl mx-auto justify-center items-center px-4 sm:px-6 text-center">
 			<h1 className="text-3xl sm:text-4xl md:text-6xl leading-snug sm:leading-tight">

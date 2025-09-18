@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import {
@@ -43,6 +43,10 @@ export const Register = () => {
 		const authUrl = await getGithubOAuthLink(redirectUri);
 		window.location.href = authUrl;
 	};
+
+	useEffect(() => {
+		window.document.title = "Register - Clouly";
+	}, []);
 
 	const onSubmit = async (data: RegisterFormData) => {
 		setLoading(true);
