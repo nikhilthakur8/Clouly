@@ -26,6 +26,7 @@ const router = createBrowserRouter(
 		<>
 			<Route path="/" element={<MainLayout />}>
 				<Route index element={<Home />} />
+				<Route path="/learn-more" element={<LearnMore />} />
 				<Route path="/" element={<UserLayout />}>
 					<Route path="/dashboard" element={<Index />} />
 					<Route
@@ -34,7 +35,6 @@ const router = createBrowserRouter(
 					/>
 					<Route path="/profile" element={<Profile />} />
 					<Route path="/api" element={<Api />} />
-					<Route path="/learn-more" element={<LearnMore />} />
 				</Route>
 			</Route>
 			<Route element={<AuthLayout />}>
