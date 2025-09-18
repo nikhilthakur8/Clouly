@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 export const Profile = () => {
 	const { user } = useUserContext();
 	const navigate = useNavigate();
+	const { setUser } = useUserContext();
 	const [loading, setLoading] = useState(false);
 	useEffect(() => {
 		document.title = "Profile - Clouly";
@@ -37,6 +38,7 @@ export const Profile = () => {
 		setLoading(true);
 		try {
 			await api.post("/auth/logout");
+			setUser(null);
 			navigate("/");
 		} catch (error) {
 			console.error("Logout failed", error);
