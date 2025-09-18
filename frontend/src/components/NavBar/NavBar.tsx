@@ -62,6 +62,19 @@ export default function NavBar() {
 					</NavigationMenu>
 					{/* Right: Actions & Mobile Menu */}
 					<div className="flex items-center gap-3 flex-1 justify-end">
+						<Button variant={"default"} asChild>
+							<a
+								href="https://github.com/nikhilthakur8/clouly"
+								target="_blank"
+								className="!text-base"
+							>
+								Star this
+								<img
+									src={"/github-icon.svg"}
+									className="w-5 h-5 rounded-full border bg-white border-border"
+								/>
+							</a>
+						</Button>
 						{user ? (
 							<Link to="/profile">
 								<img
@@ -69,7 +82,7 @@ export default function NavBar() {
 										user?.picture ||
 										getAvatarUrl(user?.name)
 									}
-									className="w-10 h-10 rounded-full border-2 border-border"
+									className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-border"
 								/>
 							</Link>
 						) : (
@@ -86,7 +99,7 @@ export default function NavBar() {
 								</Link>
 							</Button>
 						)}
-						<div className="hidden md:block ml-2">
+						<div className="hidden md:block ml-2 hover:scale-110">
 							<AnimatedThemeToggler />
 						</div>
 
