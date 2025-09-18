@@ -36,9 +36,7 @@ export const Profile = () => {
 	const handleLogout = async () => {
 		setLoading(true);
 		try {
-			await api.post("/auth/logout").then((res) => {
-				window.location.href = "/";
-			});
+			await api.post("/auth/logout");
 			navigate("/");
 		} catch (error) {
 			console.error("Logout failed", error);
