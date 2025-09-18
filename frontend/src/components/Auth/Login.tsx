@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import {
 	Card,
@@ -11,13 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getGithubOAuthLink, getGoogleOAuthLink } from "../../utils/oauthLink";
-import { toast } from "sonner";
 export const Login = () => {
 	const [loading, setLoading] = useState(false);
 	const [searchParams] = useSearchParams();
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 	const redirectUri = searchParams.get("redirect_uri") || "/";
-	const navigate = useNavigate();
+	// const navigate = useNavigate();
 	const {
 		register,
 		handleSubmit,
@@ -36,7 +35,7 @@ export const Login = () => {
 		window.location.href = authUrl;
 	};
 
-	const onSubmit = async (data) => {
+	const onSubmit = async () => {
 		// setLoading(true);
 		// try {
 		// 	const response = await api.post("api/auth/register", data);
@@ -79,7 +78,7 @@ export const Login = () => {
 									message: "Invalid email address",
 								},
 							})}
-							errors={errors.email?.message}
+							errors={errors.email?.message as string}
 							className="bg-zinc-900 text-white border border-white/20"
 						/>
 						<Input
@@ -97,7 +96,7 @@ export const Login = () => {
 							}}
 							type={isPasswordVisible ? "text" : "password"}
 							className="bg-zinc-900 text-white border border-white/20"
-							errors={errors.password?.message}
+							errors={errors.password?.message as string}
 						/>
 						<Button
 							type="submit"
