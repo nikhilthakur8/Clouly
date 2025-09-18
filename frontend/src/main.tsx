@@ -20,6 +20,7 @@ import { DNSRecord } from "./components/Dashboard/DNSRecord";
 import { Profile } from "./components/Profile/Profile";
 import { MainLayout } from "./Layout/MainLayout";
 import { Api } from "./components/Api/Api";
+import LearnMore from "./components/LearnMore";
 const router = createBrowserRouter(
 	createRoutesFromElements(
 		<>
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
 					/>
 					<Route path="/profile" element={<Profile />} />
 					<Route path="/api" element={<Api />} />
+					<Route path="/learn-more" element={<LearnMore />} />
 				</Route>
 			</Route>
 			<Route element={<AuthLayout />}>
