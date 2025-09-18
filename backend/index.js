@@ -15,10 +15,20 @@ const app = express();
 app.use(cookieParser());
 app.use(
 	cors({
-		origin:
-			process.env.NODE_ENV === "production"
-				? "https://clouly.in"
-				: "http://localhost:5173",
+		origin: (origin, callback) => {
+			if (!origin) return callback(null, true);
+
+			const allowed = [
+				/^https:\/\/([a-zA-Z0-9-]+\.)*clouly\.in$/,
+				/^http:\/\/localhost:5173$/,
+			];
+
+			if (allowed.some((regex) => regex.test(origin))) {
+				callback(null, true);
+			} else {
+				callback(new Error("Not allowed by CORS"));
+			}
+		},
 		credentials: true,
 	})
 );
