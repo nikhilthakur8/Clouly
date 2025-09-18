@@ -1,6 +1,5 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { App } from "./App";
 import {
 	createBrowserRouter,
 	createRoutesFromElements,
@@ -11,20 +10,24 @@ import { Login } from "./components/Auth/Login";
 import { Register } from "./components/Auth/Register";
 import { Toaster } from "sonner";
 import { Home } from "./components/Home/Home";
+import { UserLayout } from "./Layout/UserLayout";
+import { AuthLayout } from "./Layout/AuthLayout";
+import { AuthCallback } from "./components/Auth/AuthCallback";
 const router = createBrowserRouter(
 	createRoutesFromElements(
 		<>
-			{/* Routes with main Layout */}
-			<Route path="/" element={<App />}>
+			<Route path="/" element={<UserLayout />}>
 				<Route index element={<Home />} />
-				<Route path="about" element={<div>About</div>} />
-				<Route path="contact" element={<div>Contact</div>} />
-				<Route path="*" element={<div>404 Not Found</div>} />
 			</Route>
-			<Route path="/login" element={<Login />} />
-			<Route path="/register" element={<Register />} />
-			<Route path="/contact" element={<div>Contact</div>} />
-			<Route path="*" element={<div>404 Not Found</div>} />
+			<Route element={<AuthLayout />}>
+				<Route index element={<Home />} />
+				<Route path="/login" element={<Login />} />
+				<Route path="/register" element={<Register />} />
+				<Route
+					path="/auth/:provider/callback"
+					element={<AuthCallback />}
+				/>
+			</Route>
 		</>
 	)
 );
@@ -34,7 +37,7 @@ if (rootElement) {
 		<>
 			{/* <UserContextProvider> */}
 			<RouterProvider router={router} />
-			<Toaster richColors position="bottom-right" />
+			<Toaster richColors position="bottom-right" theme="system" />
 			{/* <Analytics /> */}
 			{/* <SpeedInsights /> */}
 			{/* </UserContextProvider> */}

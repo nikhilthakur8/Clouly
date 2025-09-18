@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema(
 		},
 		passwordHash: {
 			type: String,
-			required: true,
 		},
 		name: {
 			type: String,
@@ -18,6 +17,13 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			enum: ["user", "admin"],
 			default: "user",
+		},
+		picture: {
+			type: String,
+		},
+		isVerified: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	{ timestamps: true }

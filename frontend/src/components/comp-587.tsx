@@ -13,9 +13,9 @@ import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { Link } from "react-router-dom";
 
 const navigationLinks = [
-	{ href: "#", label: "Home", icon: HouseIcon },
-	{ href: "#", label: "Manage Domain", icon: InboxIcon },
-	{ href: "#", label: "API", icon: ZapIcon },
+	{ href: "/", label: "Home", icon: HouseIcon },
+	{ href: "/dashboard", label: "Dashboard", icon: InboxIcon },
+	{ href: "/api", label: "API", icon: ZapIcon },
 ];
 
 export default function NavBar() {
@@ -104,7 +104,7 @@ export default function NavBar() {
 						{/* Mobile Header */}
 						<div className="flex items-center justify-between h-16 px-4 border-b border-border/40">
 							<a
-								href="#"
+								href="/"
 								className="flex items-center gap-3 font-semibold text-lg text-primary"
 							>
 								<Logo />

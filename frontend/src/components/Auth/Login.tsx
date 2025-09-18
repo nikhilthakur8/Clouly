@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import {
 	Card,
@@ -11,17 +11,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getGithubOAuthLink, getGoogleOAuthLink } from "../../utils/oauthLink";
+import { toast } from "sonner";
+import api from "../../api/api";
+type LoginFormData = {
+	email: string;
+	password: string;
+};
 export const Login = () => {
 	const [loading, setLoading] = useState(false);
 	const [searchParams] = useSearchParams();
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 	const redirectUri = searchParams.get("redirect_uri") || "/";
-	// const navigate = useNavigate();
+	const navigate = useNavigate();
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm();
+	} = useForm<LoginFormData>();
 
 	const handleGoogleLogin = async () => {
 		setLoading(true);
@@ -34,21 +40,20 @@ export const Login = () => {
 		const authUrl = await getGithubOAuthLink(redirectUri);
 		window.location.href = authUrl;
 	};
-
-	const onSubmit = async () => {
-		// setLoading(true);
-		// try {
-		// 	const response = await api.post("api/auth/register", data);
-		// 	toast.success("Welcome to NextLeet!");
-		// 	if (response.data) navigate(redirectUri);
-		// } catch (error) {
-		// 	console.error("Login failed:", error);
-		// 	toast.error(
-		// 		error?.response?.data?.message || "Something went wrong"
-		// 	);
-		// } finally {
-		// 	setLoading(false);
-		// }
+	const onSubmit = async (data: LoginFormData) => {
+		setLoading(true);
+		try {
+			const response = await api.post("/auth/login", data);
+			toast.success("Welcome to Clouly!");
+			if (response.data) navigate(redirectUri);
+		} catch (error: any) {
+			console.error("Login failed:", error);
+			toast.error(
+				error?.response?.data?.message || "Something went wrong"
+			);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (

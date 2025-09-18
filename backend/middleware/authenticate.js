@@ -4,7 +4,10 @@ const { verifyToken } = require("../utils/jwt");
 const authenticate = async (req, res, next) => {
 	try {
 		const authHeader = req.headers.authorization;
-		const token = authHeader && authHeader.split(" ")[1];
+		const token =
+			(authHeader && authHeader.split(" ")[1]) ||
+			req.cookies.CLOULY_SESSION;
+
 		if (!token) {
 			return res
 				.status(401)
