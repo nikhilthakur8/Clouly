@@ -1,0 +1,107 @@
+import { useEffect } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { User as UserIcon, Mail, Calendar, Shield } from "lucide-react";
+import { useUserContext } from "@/context/context";
+
+export const Profile = () => {
+	const { user } = useUserContext();
+
+	useEffect(() => {
+		document.title = "Profile - Clouly";
+	}, []);
+
+	const getAvatarUrl = (name: string) => {
+		const encodedName = encodeURIComponent(name);
+		return `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodedName}`;
+	};
+
+	const formatDate = (dateString: string) => {
+		return new Date(dateString).toLocaleDateString("en-US", {
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+		});
+	};
+
+	if (!user) {
+		return (
+			<div className="p-6 max-w-2xl mx-auto">
+				<h1 className="text-2xl tracking-wide mb-6">Profile</h1>
+				<p className="text-muted-foreground">No user data available.</p>
+			</div>
+		);
+	}
+
+	return (
+		<div className="p-6 max-w-2xl mx-auto">
+			<h1 className="text-2xl tracking-wide mb-6">Profile</h1>
+
+			<Card>
+				<CardHeader className="text-center">
+					<div className="flex justify-center mb-4">
+						<img
+							src={
+								user.picture ||
+								getAvatarUrl(user.name || user.email)
+							}
+							alt={user.name || "user"}
+							className="w-24 h-24 rounded-full border-4 border-border"
+						/>
+					</div>
+					<CardTitle className="text-xl">
+						{user.name || "User"}
+					</CardTitle>
+					<p className="text-base text-muted-foreground">
+						{user.email}
+					</p>
+				</CardHeader>
+
+				<CardContent className="space-y-4">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div className="flex items-center gap-3 p-3 bg-accent/30 rounded-lg">
+							<UserIcon className="h-5 w-5 text-primary" />
+							<div>
+								<p className="text-sm font-medium">Name</p>
+								<p className="text-base">
+									{user.name || "Not provided"}
+								</p>
+							</div>
+						</div>
+
+						<div className="flex items-center gap-3 p-3 bg-accent/30 rounded-lg">
+							<Mail className="h-5 w-5 text-primary shrink-0" />
+							<div>
+								<p className="text-sm font-medium">Email</p>
+								<p className="text-base break-all">
+									{user.email}
+								</p>
+							</div>
+						</div>
+
+						<div className="flex items-center gap-3 p-3 bg-accent/30 rounded-lg">
+							<Shield className="h-5 w-5 text-primary" />
+							<div>
+								<p className="text-sm font-medium">Role</p>
+								<p className="text-base capitalize">
+									{user.role}
+								</p>
+							</div>
+						</div>
+
+						<div className="flex items-center gap-3 p-3 bg-accent/30 rounded-lg">
+							<Calendar className="h-5 w-5 text-primary" />
+							<div>
+								<p className="text-sm font-medium">
+									Member Since
+								</p>
+								<p className="text-base">
+									{formatDate(user.createdAt)}
+								</p>
+							</div>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
+	);
+};

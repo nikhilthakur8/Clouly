@@ -11,20 +11,25 @@ import {
 } from "@/components/ui/navigation-menu";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { Link } from "react-router-dom";
+import { useUserContext } from "@/context/context";
 
 const navigationLinks = [
 	{ href: "/", label: "Home", icon: HouseIcon },
 	{ href: "/dashboard", label: "Dashboard", icon: InboxIcon },
 	{ href: "/api", label: "API", icon: ZapIcon },
 ];
-
+const getAvatarUrl = (name: string) => {
+	const encodedName = encodeURIComponent(name);
+	return `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodedName}`;
+};
 export default function NavBar() {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 	const toggleMobileMenu = () => {
 		setIsMobileMenuOpen(!isMobileMenuOpen);
 	};
-
+	const { user } = useUserContext();
+	console.log(user);
 	return (
 		<>
 			<header className="w-full bg-background/95 backdrop-blur-lg border-b border-border/40 sticky top-0 z-50 shadow-sm">
@@ -41,13 +46,16 @@ export default function NavBar() {
 							{navigationLinks.map((link, idx) => (
 								<NavigationMenuItem key={idx}>
 									<NavigationMenuLink
+										asChild
 										href={link.href}
 										className="relative text-foreground font-normal text-lg px-4 py-2 transition-all duration-300 hover:text-primary group/nav-item !bg-transparent  data-[active]:!bg-transparent data-[active]:hover:!bg-transparent data-[active]:focus:!bg-transparent focus:outline-none"
 									>
-										<span className="relative z-10 whitespace-nowrap">
-											{link.label}
-										</span>
-										<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 w-0 bg-gradient-to-r from-primary to-primary/70 transition-all duration-300 group-hover/nav-item:w-full rounded-full"></div>
+										<Link to={link.href}>
+											<span className="relative z-10 whitespace-nowrap">
+												{link.label}
+											</span>
+											<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 w-0 bg-gradient-to-r from-primary to-primary/70 transition-all duration-300 group-hover/nav-item:w-full rounded-full"></div>
+										</Link>
 									</NavigationMenuLink>
 								</NavigationMenuItem>
 							))}
@@ -55,18 +63,30 @@ export default function NavBar() {
 					</NavigationMenu>
 					{/* Right: Actions & Mobile Menu */}
 					<div className="flex items-center gap-3 flex-1 justify-end">
-						<Button
-							asChild
-							variant="default"
-							className="hidden md:inline-flex py-2 px-5 transition-all text-base duration-200 font-medium hover:scale-105"
-						>
-							<Link
-								to="/login"
-								className="relative overflow-hidden"
-							>
-								Login
+						{user ? (
+							<Link to="/profile">
+								<img
+									src={
+										user?.picture ||
+										getAvatarUrl(user?.name)
+									}
+									className="w-10 h-10 rounded-full border-2 border-border"
+								/>
 							</Link>
-						</Button>
+						) : (
+							<Button
+								asChild
+								variant="default"
+								className="hidden md:inline-flex py-2 px-5 transition-all text-base duration-200 font-medium hover:scale-105"
+							>
+								<Link
+									to="/login"
+									className="relative overflow-hidden"
+								>
+									Login
+								</Link>
+							</Button>
+						)}
 						<div className="hidden md:block ml-2">
 							<AnimatedThemeToggler />
 						</div>

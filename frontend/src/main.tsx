@@ -16,12 +16,22 @@ import { AuthCallback } from "./components/Auth/AuthCallback";
 import { UserProvider } from "./context/UserProvider";
 import { Index } from "./components/Dashboard/Index";
 import { Analytics } from "@vercel/analytics/react";
+import { DNSRecord } from "./components/Dashboard/DNSRecord";
+import { Profile } from "./components/Profile/Profile";
+import { MainLayout } from "./Layout/MainLayout";
 const router = createBrowserRouter(
 	createRoutesFromElements(
 		<>
-			<Route path="/" element={<UserLayout />}>
+			<Route path="/" element={<MainLayout />}>
 				<Route index element={<Home />} />
-				<Route path="/dashboard" element={<Index />} />
+				<Route path="/" element={<UserLayout />}>
+					<Route path="/dashboard" element={<Index />} />
+					<Route
+						path="/subdomain/:subdomainId"
+						element={<DNSRecord />}
+					/>
+					<Route path="/profile" element={<Profile />} />
+				</Route>
 			</Route>
 			<Route element={<AuthLayout />}>
 				<Route index element={<Home />} />
@@ -41,7 +51,7 @@ if (rootElement) {
 		<>
 			<UserProvider>
 				<RouterProvider router={router} />
-				<Toaster richColors position="bottom-right" theme="system" />
+				<Toaster richColors position="bottom-right" />
 				<Analytics />
 				{/* <SpeedInsights /> */}
 			</UserProvider>

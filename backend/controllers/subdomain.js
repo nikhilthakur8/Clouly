@@ -1,7 +1,7 @@
 const SubDomain = require("../models/Subdomain");
 const DNSRecord = require("../models/DNSRecord");
-const cfApiService = require("../service/cfConfig");
-
+const Record = require("../models/Record");
+const mongoose = require("mongoose");
 const handleCreateSubdomain = async (req, res) => {
 	try {
 		const { name, notes } = req.body;
@@ -59,7 +59,9 @@ const handleGetSubdomain = async (req, res) => {
 const handleGetAllSubdomains = async (req, res) => {
 	try {
 		const { _id: ownerUserId } = req.user;
-		const subdomains = await SubDomain.find({ ownerUserId });
+		const subdomains = await SubDomain.find({ ownerUserId }).sort({
+			_id: -1,
+		});
 		return res.status(200).send({
 			message: "Subdomains retrieved successfully",
 			data: subdomains,
@@ -72,41 +74,43 @@ const handleGetAllSubdomains = async (req, res) => {
 };
 
 const handleDeleteSubdomain = async (req, res) => {
+	const session = await mongoose.startSession();
+	session.startTransaction();
 	try {
 		const { subdomainId } = req.params;
-		const subdomain = await SubDomain.findOneAndDelete({
-			_id: subdomainId,
-		});
+
+		const subdomain = await SubDomain.findOneAndDelete(
+			{ _id: subdomainId },
+			{ session }
+		);
+
 		if (!subdomain) {
+			await session.abortTransaction();
+			session.endSession();
 			return res.status(404).send({
 				message: "Subdomain not found",
 				error: "Not Found",
 			});
 		}
 
-		const dnsRecords = await DNSRecord.find({
-			subdomain: subdomainId,
-		}).select("cfId");
+		await Promise.all([
+			Record.deleteMany({ subdomain: subdomainId }).session(session),
+			DNSRecord.deleteMany({ subdomain: subdomainId }).session(session),
+		]);
 
-		const dnsRecordIds = dnsRecords.map((record) => {
-			return { id: record.cfId };
-		});
-		if (dnsRecordIds.length > 0) {
-			await cfApiService.post("/dns_records/batch", {
-				deletes: dnsRecordIds,
-			});
+		await session.commitTransaction();
+		session.endSession();
 
-			await DNSRecord.deleteMany({ subdomain: subdomainId });
-		}
 		return res.status(200).send({
-			message: "Subdomain deleted successfully",
-			data: subdomain,
+			message: "Subdomain and related records deleted successfully",
 		});
 	} catch (error) {
-		console.log(error);
+		await session.abortTransaction();
+		session.endSession();
+		console.error(error);
 		return res.status(500).send({
 			message: "Internal server error",
-			error: error.response.data,
+			error: error.message,
 		});
 	}
 };

@@ -1,8 +1,8 @@
 const DNSRecord = require("../models/DNSRecord");
-const cfService = require("../service/cfConfig");
+const Record = require("../models/Record");
 const handleCreateDNSRecord = async (req, res) => {
 	try {
-		const { type, content, ttl, proxied } = req.body;
+		const { type, content, ttl } = req.body;
 		const ownerUserId = req.user._id;
 		const { name, _id: subdomainId } = req.subdomain;
 
@@ -49,18 +49,22 @@ const handleCreateDNSRecord = async (req, res) => {
 			}
 		}
 
-		const payload = { name, ttl, type, content, proxied };
-		const cfResponse = await cfService.post("/dns_records", payload);
+		const extDnsRecord = await Record.create({
+			type,
+			name,
+			content,
+			ttl,
+			zone: process.env.EXT_ZONE,
+		});
 
 		const dnsRecord = await DNSRecord.create({
 			subdomain: subdomainId,
-			cfId: cfResponse.data.result.id,
+			extRecordId: extDnsRecord._id,
 			ownerUserId,
 			type,
 			name,
 			content,
 			ttl,
-			proxied,
 		});
 
 		return res.status(201).send({
@@ -94,13 +98,14 @@ const handleGetAllDNSRecords = async (req, res) => {
 
 const handleUpdateDNSRecord = async (req, res) => {
 	try {
-		const { type, content, ttl, proxied } = req.body;
+		const { type, content, ttl } = req.body;
 		const dnsRecordId = req.params.dnsRecordId;
 		const { name, _id: subdomainId } = req.subdomain;
 		const isDataExists = await DNSRecord.findOne({
 			type,
 			name,
 			content,
+			ttl,
 		});
 
 		if (isDataExists) {
@@ -114,19 +119,18 @@ const handleUpdateDNSRecord = async (req, res) => {
 			_id: dnsRecordId,
 		});
 
-		const cfId = dnsData.cfId;
+		const extRecordId = dnsData.extRecordId;
 
-		await cfService.put(`/dns_records/${cfId}`, {
+		const extData = await Record.findByIdAndUpdate(extRecordId, {
 			type,
 			name,
 			content,
 			ttl,
-			proxied,
 		});
 
 		const updatedDNSRecord = await DNSRecord.findByIdAndUpdate(
 			dnsRecordId,
-			{ type, name, content, ttl, proxied },
+			{ type, name, content, ttl },
 			{ new: true }
 		);
 
@@ -148,8 +152,8 @@ const handleDeleteDNSRecord = async (req, res) => {
 		const dnsData = await DNSRecord.findOne({
 			_id: dnsRecordId,
 		});
-		const cfId = dnsData.cfId;
-		await cfService.delete(`/dns_records/${cfId}`);
+		const extRecordId = dnsData.extRecordId;
+		await Record.findByIdAndDelete(extRecordId);
 		await DNSRecord.findByIdAndDelete(dnsRecordId);
 		return res
 			.status(200)

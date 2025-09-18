@@ -1,4 +1,4 @@
-import NavBar from "./components/comp-587";
+import NavBar from "./components/NavBar/NavBar";
 import { Outlet } from "react-router-dom";
 export const App = () => {
 	return (

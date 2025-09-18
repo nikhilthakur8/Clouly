@@ -14,8 +14,6 @@ const dnsRecordZodSchema = z
 		ttl: z.number().int().positive().default(3600),
 
 		priority: z.number().int().nullable().optional(),
-
-		proxied: z.boolean().default(false),
 	})
 	.strict()
 	.superRefine((data, ctx) => {
@@ -36,14 +34,6 @@ const dnsRecordZodSchema = z
 			ctx.addIssue({
 				path: ["content"],
 				message: "Content must be a valid hostname for CNAME",
-				code: "invalid_value",
-			});
-		}
-
-		if (data.type === "TXT" && data.proxied !== false) {
-			ctx.addIssue({
-				path: ["proxied"],
-				message: "TXT records cannot be proxied",
 				code: "invalid_value",
 			});
 		}

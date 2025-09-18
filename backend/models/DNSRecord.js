@@ -12,7 +12,7 @@ const dnsRecordSchema = new mongoose.Schema(
 			ref: "User",
 			required: true,
 		},
-		cfId: {
+		extRecordId: {
 			type: String,
 			required: true,
 			unique: true,
@@ -39,10 +39,6 @@ const dnsRecordSchema = new mongoose.Schema(
 		priority: {
 			type: Number,
 			default: null,
-		},
-		proxied: {
-			type: Boolean,
-			default: false,
 		},
 	},
 	{
