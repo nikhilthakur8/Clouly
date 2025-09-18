@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
 	Card,
 	CardHeader,
@@ -9,10 +9,14 @@ import {
 import { User as UserIcon, Mail, Calendar, Shield, LogOut } from "lucide-react";
 import { useUserContext } from "@/context/context";
 import { Button } from "../ui/button";
+import api from "@/api/api";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export const Profile = () => {
 	const { user } = useUserContext();
-
+	const navigate = useNavigate();
+	const [loading, setLoading] = useState(false);
 	useEffect(() => {
 		document.title = "Profile - Clouly";
 	}, []);
@@ -28,6 +32,20 @@ export const Profile = () => {
 			month: "long",
 			day: "numeric",
 		});
+	};
+	const handleLogout = async () => {
+		setLoading(true);
+		try {
+			await api.post("/auth/logout").then((res) => {
+				window.location.href = "/";
+			});
+			navigate("/");
+		} catch (error) {
+			console.error("Logout failed", error);
+			toast.error("Logout failed. Please try again.");
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	if (!user) {
@@ -109,13 +127,13 @@ export const Profile = () => {
 				</CardContent>
 				<CardFooter>
 					<Button asChild className="text-base px-10 mx-auto">
-						<a
-							href="/api/auth/logout"
+						<div
+							onClick={handleLogout}
 							className="text-base flex items-center gap-2 justify-center"
 						>
-							Log Out
+							{loading ? "Logging Out..." : "Log Out"}
 							<LogOut />
-						</a>
+						</div>
 					</Button>
 				</CardFooter>
 			</Card>
