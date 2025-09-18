@@ -58,7 +58,7 @@ export const Profile = () => {
 	}
 
 	return (
-		<div className="p-6 max-w-2xl mx-auto">
+		<div className="p-6 max-w-3xl mx-auto">
 			<h1 className="text-2xl tracking-wide mb-6">Profile</h1>
 			<Card>
 				<CardHeader className="text-center">
