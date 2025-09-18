@@ -1,7 +1,14 @@
 import { useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { User as UserIcon, Mail, Calendar, Shield } from "lucide-react";
+import {
+	Card,
+	CardHeader,
+	CardTitle,
+	CardContent,
+	CardFooter,
+} from "@/components/ui/card";
+import { User as UserIcon, Mail, Calendar, Shield, LogOut } from "lucide-react";
 import { useUserContext } from "@/context/context";
+import { Button } from "../ui/button";
 
 export const Profile = () => {
 	const { user } = useUserContext();
@@ -35,7 +42,6 @@ export const Profile = () => {
 	return (
 		<div className="p-6 max-w-2xl mx-auto">
 			<h1 className="text-2xl tracking-wide mb-6">Profile</h1>
-
 			<Card>
 				<CardHeader className="text-center">
 					<div className="flex justify-center mb-4">
@@ -101,6 +107,17 @@ export const Profile = () => {
 						</div>
 					</div>
 				</CardContent>
+				<CardFooter>
+					<Button asChild className="text-base px-10 mx-auto">
+						<a
+							href="/api/auth/logout"
+							className="text-base flex items-center gap-2 justify-center"
+						>
+							Log Out
+							<LogOut />
+						</a>
+					</Button>
+				</CardFooter>
 			</Card>
 		</div>
 	);

@@ -22,7 +22,7 @@ export const Home = () => {
 					className="text-sm sm:text-lg px-5 sm:px-6 py-2 sm:py-3 bg-primary text-background hover:bg-primary/90 duration-200 transition-all hover:scale-105"
 					asChild
 				>
-					<Link to="/login">Start for Free</Link>
+					<Link to="/dashboard">Start for Free</Link>
 				</Button>
 				<Button
 					variant="outline"

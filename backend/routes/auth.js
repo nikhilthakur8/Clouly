@@ -11,6 +11,7 @@ const {
 	handleLogin,
 	handleOAuthCallback,
 	handleRegister,
+	handleLogout,
 } = require("../controllers/auth");
 
 authRouter.post(
@@ -22,5 +23,6 @@ authRouter.post(
 authRouter.post("/login", validateBody(loginSchema), handleLogin);
 authRouter.post("/register", validateBody(registerSchema), handleRegister);
 authRouter.post("/oauth", validateBody(oauthSchema), handleOAuthCallback);
+authRouter.post("/logout", handleLogout);
 
 module.exports = authRouter;

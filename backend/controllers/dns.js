@@ -27,7 +27,7 @@ const handleCreateDNSRecord = async (req, res) => {
 				});
 			}
 		} else {
-			if (existingCNAME) {
+			if (existingCNAME && (type === "A" || type === "AAAA")) {
 				return res.status(400).send({
 					message: `${type} record cannot be created because a CNAME already exists for this name`,
 					error: "Bad Request",

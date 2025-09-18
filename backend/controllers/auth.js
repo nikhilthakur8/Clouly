@@ -228,9 +228,22 @@ const handleOAuthCallback = async (req, res) => {
 	}
 };
 
+async function handleLogout(req, res) {
+	res.clearCookie("CLOULY_SESSION", {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "Strict",
+		maxAge: 7 * 24 * 60 * 60 * 1000,
+		domain:
+			process.env.NODE_ENV === "production" ? ".clouly.in" : "localhost",
+	});
+	return res.json({ message: "Logged out successfully" });
+}
+
 module.exports = {
 	handleLoginOrRegister,
 	handleOAuthCallback,
 	handleLogin,
 	handleRegister,
+	handleLogout,
 };

@@ -19,6 +19,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { DNSRecord } from "./components/Dashboard/DNSRecord";
 import { Profile } from "./components/Profile/Profile";
 import { MainLayout } from "./Layout/MainLayout";
+import { Api } from "./components/Api/Api";
 const router = createBrowserRouter(
 	createRoutesFromElements(
 		<>
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
 						element={<DNSRecord />}
 					/>
 					<Route path="/profile" element={<Profile />} />
+					<Route path="/api" element={<Api />} />
 				</Route>
 			</Route>
 			<Route element={<AuthLayout />}>
@@ -51,7 +53,7 @@ if (rootElement) {
 		<>
 			<UserProvider>
 				<RouterProvider router={router} />
-				<Toaster richColors position="bottom-right" />
+				<Toaster theme="dark" richColors position="bottom-right" />
 				<Analytics />
 				{/* <SpeedInsights /> */}
 			</UserProvider>

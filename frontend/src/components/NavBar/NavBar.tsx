@@ -29,7 +29,6 @@ export default function NavBar() {
 		setIsMobileMenuOpen(!isMobileMenuOpen);
 	};
 	const { user } = useUserContext();
-	console.log(user);
 	return (
 		<>
 			<header className="w-full bg-background/95 backdrop-blur-lg border-b border-border/40 sticky top-0 z-50 shadow-sm">
