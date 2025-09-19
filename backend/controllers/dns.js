@@ -109,7 +109,9 @@ const handleCreateDNSRecord = async (req, res) => {
 const handleGetAllDNSRecords = async (req, res) => {
 	try {
 		const subdomainId = req.params.subdomainId;
-		const dnsRecords = await DNSRecord.find({ subdomain: subdomainId });
+		const dnsRecords = await DNSRecord.find({
+			subdomain: subdomainId,
+		}).select("-extRecordId -__v -ownerUserId");
 		return res.status(200).send({
 			message: "DNS Records retrieved successfully",
 			data: dnsRecords,
@@ -121,7 +123,6 @@ const handleGetAllDNSRecords = async (req, res) => {
 			.send({ message: "Internal server error", error: error.message });
 	}
 };
-
 
 const handleUpdateDNSRecord = async (req, res) => {
 	const session = await mongoose.startSession();
