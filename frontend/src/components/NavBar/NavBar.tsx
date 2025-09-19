@@ -135,15 +135,11 @@ export default function NavBar() {
 					<div className="min-h-svh bg-background/95 backdrop-blur-lg flex flex-col">
 						{/* Mobile Header */}
 						<div className="flex items-center justify-between h-16 px-4 border-b border-border/40">
-							<a
-								href="/"
-								className="flex items-center gap-3 font-semibold text-lg text-primary"
-							>
-								<Logo />
-								<span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+							<div className="flex items-center flex-1">
+								<span className="bg-gradient-to-r text-3xl font-medium tracking-wide from-primary to-primary/70 bg-clip-text text-transparent">
 									Clouly
 								</span>
-							</a>
+							</div>
 							<Button
 								variant="ghost"
 								size="icon"
@@ -178,15 +174,20 @@ export default function NavBar() {
 
 							{/* Mobile Actions */}
 							<div className="mt-12 space-y-4">
-								<Button
-									asChild
-									variant="ghost"
-									className="w-full rounded-xl py-4 text-base hover:bg-accent/50 transition-all duration-200 font-medium"
-								>
-									<Link to="/login" onClick={toggleMobileMenu}>
-										Sign In
-									</Link>
-								</Button>
+								{!user && (
+									<Button
+										asChild
+										variant="ghost"
+										className="w-full rounded-xl py-4 text-base hover:bg-accent/50 transition-all duration-200 font-medium"
+									>
+										<Link
+											to="/login"
+											onClick={toggleMobileMenu}
+										>
+											Sign In
+										</Link>
+									</Button>
+								)}
 
 								<div className="flex justify-center mt-6">
 									<AnimatedThemeToggler />
