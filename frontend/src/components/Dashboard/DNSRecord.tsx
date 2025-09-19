@@ -272,7 +272,9 @@ export const DNSRecord = () => {
 						onClick={() => navigate("/dashboard")}
 					/>
 					<div>
-						<h1 className="text-2xl font-bold">DNS Records</h1>
+						<h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+							DNS Records
+						</h1>
 						<p className="text-base text-muted-foreground">
 							{subdomain?.name}.clouly.in
 						</p>
@@ -285,7 +287,7 @@ export const DNSRecord = () => {
 							onClick={openCreateDialog}
 							className="text-base"
 						>
-							<Plus className="h-4 w-4 mr-2" />
+							<Plus className="h-4 w-4" />
 							Add DNS Record
 						</Button>
 					</DialogTrigger>

@@ -38,9 +38,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get("/status", (req, res) => res.send("Chal rha hu bhai "));
-app.use("/api/auth/", loginLimiter, require("./routes/auth"));
-app.use("/api/subdomain", authenticate, dnsLimiter, require("./routes/dns"));
-app.use("/api/user", authenticate, normalLimiter, require("./routes/user"));
+app.use("/api/auth/", require("./routes/auth"));
+app.use("/api/subdomain", authenticate, require("./routes/dns"));
+app.use("/api/user", authenticate, require("./routes/user"));
 
 app.listen(3000, async () => {
 	console.log("Server is running on port 3000");

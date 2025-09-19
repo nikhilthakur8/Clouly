@@ -66,7 +66,7 @@ export default function NavBar() {
 							<a
 								href="https://github.com/nikhilthakur8/clouly"
 								target="_blank"
-								className="!text-base"
+								className="md:!text-base"
 							>
 								Star this
 								<img
@@ -76,7 +76,7 @@ export default function NavBar() {
 							</a>
 						</Button>
 						{user ? (
-							<Link to="/profile">
+							<Link to="/profile" className="shrink-0">
 								<img
 									src={
 										user?.picture ||
@@ -183,9 +183,9 @@ export default function NavBar() {
 									variant="ghost"
 									className="w-full rounded-xl py-4 text-base hover:bg-accent/50 transition-all duration-200 font-medium"
 								>
-									<a href="#" onClick={toggleMobileMenu}>
+									<Link to="/login" onClick={toggleMobileMenu}>
 										Sign In
-									</a>
+									</Link>
 								</Button>
 
 								<div className="flex justify-center mt-6">

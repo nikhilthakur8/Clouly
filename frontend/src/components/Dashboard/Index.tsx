@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Eye, Loader2, Trash2, Copy, ExternalLink } from "lucide-react";
+import { Eye, Loader2, Trash2, Copy, ExternalLink, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type DomainFormData = {
@@ -116,7 +116,7 @@ export const Index = () => {
 
 	return (
 		<div className="p-6 space-y-6 max-w-7xl mx-auto">
-			<div className="flex justify-between items-center">
+			<div className="flex flex-col sm:flex-row items-start justify-between gap-2">
 				<div>
 					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
 						My Subdomains
@@ -128,7 +128,8 @@ export const Index = () => {
 
 				<Dialog open={open} onOpenChange={setOpen}>
 					<DialogTrigger asChild>
-						<Button className="text-base px-6 py-2">
+						<Button className="text-base">
+							<Plus />
 							Add SubDomain
 						</Button>
 					</DialogTrigger>
@@ -223,6 +224,7 @@ export const Index = () => {
 				<div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
 					<p className="text-lg text-primary">No subdomains found</p>
 					<Button className="text-base" onClick={() => setOpen(true)}>
+						<Plus />
 						Add Subdomain
 					</Button>
 				</div>
@@ -231,7 +233,7 @@ export const Index = () => {
 					{domains.map((domain) => (
 						<Card key={domain._id}>
 							<CardHeader>
-								<CardTitle className="text-lg flex flex-col justify-center font-semibold">
+								<CardTitle className="text-xl flex flex-col justify-center font-semibold">
 									<span>{domain.name}</span>
 									<div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
 										<span
