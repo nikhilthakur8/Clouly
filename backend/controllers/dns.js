@@ -21,7 +21,7 @@ const handleCreateDNSRecord = async (req, res) => {
 			const existingAny = await DNSRecord.findOne({
 				name,
 				subdomain: subdomainId,
-				type: ["AAAA", "A"],
+				type: ["AAAA", "A", "CNAME"],
 			}).session(session);
 
 			if (existingAny) {

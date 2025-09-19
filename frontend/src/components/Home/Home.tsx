@@ -33,7 +33,7 @@ export const Home = () => {
 					className="text-sm sm:text-lg px-5 sm:px-6 py-2 sm:py-3 hover:bg-accent/20"
 					asChild
 				>
-					<Link to="/learn-more">Learn More</Link>
+					<Link to="/learn-more">How It Works</Link>
 				</Button>
 			</div>
 		</div>

@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "@/api/api";
 import { useForm } from "react-hook-form";
-import {
-	Card,
-	CardHeader,
-	CardTitle,
-	CardContent,
-	CardFooter,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -114,11 +107,16 @@ export const Index = () => {
 		toast.info(`Copied ${domain.name}.clouly.in to clipboard`);
 	};
 
+	const [searchTerm, setSearchTerm] = useState("");
+	const filteredDomains = domains.filter((domain) =>
+		domain.name.toLowerCase().includes(searchTerm.toLowerCase())
+	);
 	return (
 		<div className="p-6 space-y-6 max-w-7xl mx-auto">
-			<div className="flex flex-col sm:flex-row items-start justify-between gap-2">
+			{/* Header */}
+			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 				<div>
-					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+					<h1 className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
 						My Subdomains
 					</h1>
 					<p className="text-sm sm:text-base text-muted-foreground mt-1">
@@ -129,8 +127,7 @@ export const Index = () => {
 				<Dialog open={open} onOpenChange={setOpen}>
 					<DialogTrigger asChild>
 						<Button className="text-base">
-							<Plus />
-							Add SubDomain
+							<Plus /> Add SubDomain
 						</Button>
 					</DialogTrigger>
 					<DialogContent>
@@ -215,7 +212,13 @@ export const Index = () => {
 					</DialogContent>
 				</Dialog>
 			</div>
+			<Input
+				placeholder="Search Subdomains..."
+				type="search"
+				onChange={(e) => setSearchTerm(e.target.value)}
+			/>
 
+			{/* Table or Empty State */}
 			{loading ? (
 				<div className="flex justify-center py-20">
 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -224,86 +227,107 @@ export const Index = () => {
 				<div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
 					<p className="text-lg text-primary">No subdomains found</p>
 					<Button className="text-base" onClick={() => setOpen(true)}>
-						<Plus />
-						Add Subdomain
+						<Plus /> Add Subdomain
 					</Button>
 				</div>
+			) : filteredDomains.length === 0 ? (
+				<p className="text-center text-muted-foreground">
+					No subdomains match your search.
+				</p>
 			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{domains.map((domain) => (
-						<Card key={domain._id}>
-							<CardHeader>
-								<CardTitle className="text-xl flex flex-col justify-center font-semibold">
-									<span>{domain.name}</span>
-									<div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-										<span
-											className="font-mono cursor-pointer"
+				<div className="overflow-x-auto  border rounded-lg">
+					<table className="w-full text-left border-collapse">
+						<thead>
+							<tr className="bg-muted/40 text-sm md:text-base text-muted-foreground">
+								<th className="px-4 py-3 w-[15%]">Name</th>
+								<th className="px-4 py-3 w-[40%]">Domain</th>
+								<th className="px-4 py-3 w-[30%]">Notes</th>
+								<th className="px-4 py-3 w-[15%]">Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{filteredDomains.map((domain) => (
+								<tr
+									key={domain._id}
+									className="border-t hover:bg-muted/30 transition"
+								>
+									<td className="px-4 py-3 font-medium">
+										{domain.name}
+									</td>
+									<td
+										className="px-4 py-3 font-mono cursor-pointer hover:text-primary  transition"
+										onClick={() =>
+											handleSubDomainCopy(domain)
+										}
+									>
+										<div className="flex items-center gap-2">
+											<span className="whitespace-nowrap">
+												{domain.name}.clouly.in
+											</span>
+											<Copy size={16} />
+											<ExternalLink
+												size={16}
+												className="text-blue-500 cursor-pointer hover:scale-110 transition"
+												onClick={(e) => {
+													e.stopPropagation();
+													window.open(
+														`https://${domain.name}.clouly.in`,
+														"_blank"
+													);
+													toast.info(
+														`Redirected to https://${domain.name}.clouly.in`
+													);
+												}}
+											/>
+										</div>
+									</td>
+									<td className="px-4 py-3 text-muted-foreground">
+										{domain.notes ? (
+											<div className="bg-muted/50 p-2 rounded text-sm max-w-xs truncate">
+												{domain.notes}
+											</div>
+										) : (
+											<span className="text-xs italic">
+												No notes
+											</span>
+										)}
+									</td>
+									<td className="px-4 py-3 flex gap-2">
+										<Button
+											variant="secondary"
+											className="text-sm md:text-base"
 											onClick={() =>
-												handleSubDomainCopy(domain)
+												navigate(
+													`/subdomain/${domain._id}`
+												)
 											}
 										>
-											{domain.name + ".clouly.in"}
-										</span>
-										<Copy
-											size={16}
+											<Eye className="h-4 w-4 mr-1" />
+											View
+										</Button>
+										<Button
+											variant="destructive"
+											className="text-sm md:text-base"
 											onClick={() =>
-												handleSubDomainCopy(domain)
+												setDeleteId(domain._id)
 											}
-										/>
-										<ExternalLink
-											size={16}
-											className="text-blue-500 cursor-pointer"
-											onClick={() => {
-												window.open(
-													`https://${domain.name}.clouly.in`,
-													"_blank"
-												);
-												toast.info(
-													`Redirected to https://${domain.name}.clouly.in`
-												);
-											}}
-										/>
-									</div>
-								</CardTitle>
-							</CardHeader>
-
-							{domain.notes && (
-								<CardContent>
-									<p className="text-base text-primary">
-										{domain.notes}
-									</p>
-								</CardContent>
-							)}
-
-							<CardFooter className="flex justify-end gap-2">
-								<Button
-									variant="secondary"
-									className="text-base flex items-center gap-2"
-									onClick={() =>
-										navigate(`/subdomain/${domain._id}`)
-									}
-								>
-									<Eye className="h-4 w-4" /> View
-								</Button>
-
-								<Button
-									variant="destructive"
-									className="text-base flex items-center gap-2"
-									onClick={() => setDeleteId(domain._id)}
-									disabled={
-										deleting && deleteId === domain._id
-									}
-								>
-									{deleting && deleteId === domain._id ? (
-										<Loader2 className="h-4 w-4 animate-spin" />
-									) : (
-										<Trash2 className="h-4 w-4" />
-									)}
-									Delete
-								</Button>
-							</CardFooter>
-						</Card>
-					))}
+											disabled={
+												deleting &&
+												deleteId === domain._id
+											}
+										>
+											{deleting &&
+											deleteId === domain._id ? (
+												<Loader2 className="h-4 w-4 animate-spin" />
+											) : (
+												<Trash2 className="h-4 w-4" />
+											)}
+										</Button>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
 				</div>
 			)}
 
@@ -315,9 +339,9 @@ export const Index = () => {
 							Confirm Delete
 						</DialogTitle>
 					</DialogHeader>
-					<p className="text-sm text-muted-foreground">
-						Are you sure you want to delete this subdomain? This
-						action cannot be undone.
+					<p className="text-sm md:text-base text-muted-foreground">
+						Are you sure you want to delete this subdomain & it's
+						DNS records? This action cannot be undone.
 					</p>
 					<DialogFooter>
 						<Button

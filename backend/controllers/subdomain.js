@@ -59,9 +59,11 @@ const handleGetSubdomain = async (req, res) => {
 const handleGetAllSubdomains = async (req, res) => {
 	try {
 		const { _id: ownerUserId } = req.user;
-		const subdomains = await SubDomain.find({ ownerUserId }).sort({
-			_id: -1,
-		});
+		const subdomains = await SubDomain.find({ ownerUserId })
+			.select("name notes")
+			.sort({
+				_id: -1,
+			});
 		return res.status(200).send({
 			message: "Subdomains retrieved successfully",
 			data: subdomains,

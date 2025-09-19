@@ -3,13 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "@/api/api";
 import { useForm } from "react-hook-form";
 
-import {
-	Card,
-	CardHeader,
-	CardTitle,
-	CardContent,
-	CardFooter,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -44,6 +37,8 @@ import {
 	Plus,
 	ArrowLeft,
 	Clock,
+	Copy,
+	CopyCheck,
 } from "lucide-react";
 
 type DNSRecordFormData = {
@@ -72,11 +67,13 @@ export const DNSRecord = () => {
 	const { subdomainId } = useParams<{ subdomainId: string }>();
 	const navigate = useNavigate();
 
+	const [copied, setCopied] = useState<boolean>(false);
 	const [subdomain, setSubdomain] = useState<Subdomain | null>(null);
 	const [dnsRecords, setDnsRecords] = useState<DNSRecord[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [open, setOpen] = useState(false);
+	const [searchTerm, setSearchTerm] = useState("");
 	const [editingRecord, setEditingRecord] = useState<DNSRecord | null>(null);
 
 	const ttlOptions = [
@@ -102,19 +99,16 @@ export const DNSRecord = () => {
 			try {
 				setLoading(true);
 
-				// Fetch subdomain details
 				const subdomainResponse = await api.get(
 					`subdomain/${subdomainId}`
 				);
 				setSubdomain(subdomainResponse.data.data);
 
-				// Fetch DNS records
 				const dnsResponse = await api.get(
 					`subdomain/${subdomainId}/dns`
 				);
 				setDnsRecords(dnsResponse.data.data || []);
 
-				// Set page title
 				document.title = `DNS Records - ${subdomainResponse.data.data.name}.clouly.in`;
 			} catch (err) {
 				console.error(err);
@@ -154,7 +148,6 @@ export const DNSRecord = () => {
 				);
 				toast.success("DNS record updated successfully");
 			} else {
-				// Create new record
 				const response = await api.post(
 					`subdomain/${subdomainId}/dns`,
 					values
@@ -190,12 +183,7 @@ export const DNSRecord = () => {
 			toast.success("DNS record deleted successfully");
 		} catch (err: unknown) {
 			console.error(err);
-			const errorMessage =
-				err && typeof err === "object" && "response" in err
-					? (err as { response?: { data?: { message?: string } } })
-							.response?.data?.message
-					: "Failed to delete DNS record";
-			toast.error(errorMessage);
+			toast.error("Failed to delete DNS record");
 		}
 	};
 
@@ -211,27 +199,8 @@ export const DNSRecord = () => {
 
 	const openCreateDialog = () => {
 		setEditingRecord(null);
-		form.reset({
-			type: "A",
-			content: "",
-			ttl: 3600,
-		});
+		form.reset({ type: "A", content: "", ttl: 3600 });
 		setOpen(true);
-	};
-
-	const getRecordIcon = (type: string) => {
-		switch (type) {
-			case "A":
-				return "🌐";
-			case "AAAA":
-				return "🌏";
-			case "CNAME":
-				return "🔗";
-			case "TXT":
-				return "📝";
-			default:
-				return "📋";
-		}
 	};
 
 	const getPlaceholder = (type: string) => {
@@ -252,15 +221,28 @@ export const DNSRecord = () => {
 	if (loading) {
 		return (
 			<div className="flex justify-center items-center min-h-[60vh]">
-				<div className="flex flex-col items-center space-y-4">
-					<Loader2 className="h-8 w-8 animate-spin text-primary" />
-					<p className="text-sm text-muted-foreground">
-						Loading DNS records...
-					</p>
-				</div>
+				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+				<p className="ml-2 text-sm text-muted-foreground">
+					Loading DNS records...
+				</p>
 			</div>
 		);
 	}
+	const handleCopy = () => {
+		if (subdomain?.name) {
+			navigator.clipboard.writeText(`${subdomain.name}.clouly.in`);
+			setCopied(true);
+			toast.info(`Copied ${subdomain.name}.clouly.in to clipboard`);
+			setTimeout(() => setCopied(false), 1500);
+		}
+	};
+
+	const filteredRecords = dnsRecords.filter(
+		(record) =>
+			record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			record.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			record.content.toLowerCase().includes(searchTerm.toLowerCase())
+	);
 
 	return (
 		<div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -272,15 +254,26 @@ export const DNSRecord = () => {
 						onClick={() => navigate("/dashboard")}
 					/>
 					<div>
-						<h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+						<h1 className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
 							DNS Records
 						</h1>
-						<p className="text-base text-muted-foreground">
-							{subdomain?.name}.clouly.in
-						</p>
+						<div
+							className="flex items-center gap-2 cursor-pointer mt-1"
+							onClick={handleCopy}
+						>
+							<p className="text-sm md:text-base  text-muted-foreground">
+								{subdomain?.name}.clouly.in
+							</p>
+							{copied ? (
+								<>
+									<CopyCheck className="h-4 w-4" />
+								</>
+							) : (
+								<Copy className="h-4 w-4" />
+							)}
+						</div>
 					</div>
 				</div>
-
 				<Dialog open={open} onOpenChange={setOpen}>
 					<DialogTrigger asChild>
 						<Button
@@ -440,82 +433,91 @@ export const DNSRecord = () => {
 					</DialogContent>
 				</Dialog>
 			</div>
+			<Input
+				placeholder="Search DNS Records..."
+				type="search"
+				onChange={(e) => setSearchTerm(e.target.value)}
+			/>
 
 			{/* DNS Records */}
 			{dnsRecords.length === 0 ? (
 				<div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-					<div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-						<Globe className="h-8 w-8 text-primary" />
-					</div>
-					<div className="space-y-2">
-						<p className="text-lg text-primary">
-							No DNS records found
-						</p>
-						<p className="text-base text-muted-foreground">
-							Create your first DNS record to start directing
-							traffic to your subdomain.
-						</p>
-					</div>
-					<Button className="text-base" onClick={openCreateDialog}>
-						<Plus className="h-4 w-4 mr-2" />
-						Create Your First DNS Record
+					<Globe className="h-8 w-8 text-primary" />
+					<p className="text-lg text-primary">No DNS records found</p>
+					<Button onClick={openCreateDialog}>
+						<Plus className="h-4 w-4 mr-2" /> Create Your First DNS
+						Record
 					</Button>
 				</div>
+			) : filteredRecords.length === 0 ? (
+				<p className="text-center text-muted-foreground">
+					No subdomains match your search.
+				</p>
 			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{dnsRecords.map((record) => (
-						<Card key={record._id}>
-							<CardHeader>
-								<CardTitle className="text-lg flex items-center gap-3">
-									<span className="text-lg">
-										{getRecordIcon(record.type)}
-									</span>
-									<div>
-										<div className="text-base font-semibold">
+				<div className="overflow-x-auto border rounded-lg">
+					<div className="w-full overflow-x-auto">
+						<table className="w-full table-fixed text-left border-collapse">
+							<thead>
+								<tr className="bg-muted/40 text-sm md:text-base text-muted-foreground">
+									<th className="px-4 py-3 w-[10%]">Type</th>
+									<th className="px-4 py-3 w-[20%]">Name</th>
+									<th className="px-4 py-3 w-[40%]">
+										Content
+									</th>
+									<th className="px-4 py-3 w-[15%]">TTL</th>
+									<th className="px-4 py-3 w-[15%]">
+										Actions
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								{filteredRecords.map((record) => (
+									<tr
+										key={record._id}
+										className="border-t hover:bg-muted/30 transition"
+									>
+										<td className="px-4 py-3 font-medium">
 											{record.type}
-										</div>
-										<p className="text-sm text-muted-foreground">
+										</td>
+										<td className="px-4 py-3">
 											{record.name}
-										</p>
-									</div>
-								</CardTitle>
-							</CardHeader>
-
-							<CardContent className="space-y-3">
-								<div className="bg-accent/30 rounded-lg p-3 border">
-									<p className="text-sm font-mono break-all">
-										{record.content}
-									</p>
-								</div>
-
-								<div className="flex items-center gap-4 text-xs text-muted-foreground">
-									<div className="flex items-center gap-1">
-										<Clock className="h-3 w-3" />
-										<span>TTL: {record.ttl}s</span>
-									</div>
-								</div>
-							</CardContent>
-
-							<CardFooter className="flex gap-2">
-								<Button
-									variant="secondary"
-									className="text-base flex-1"
-									onClick={() => openEditDialog(record)}
-								>
-									<Edit className="h-4 w-4 mr-2" />
-									Edit
-								</Button>
-
-								<Button
-									variant="destructive"
-									className="text-base"
-									onClick={() => handleDelete(record._id)}
-								>
-									<Trash2 className="h-4 w-4" />
-								</Button>
-							</CardFooter>
-						</Card>
-					))}
+										</td>
+										<td
+											className="px-4 py-3 font-mono break-all cursor-pointer"
+											onClick={handleCopy}
+										>
+											{record.content}
+										</td>
+										<td className="px-4 py-3 text-muted-foreground">
+											<Clock className="inline h-4 w-4 mr-1" />{" "}
+											{record.ttl}s
+										</td>
+										<td className="px-4 py-3 flex gap-2">
+											<Button
+												variant="secondary"
+												className="text-sm md:text-base"
+												onClick={() =>
+													openEditDialog(record)
+												}
+											>
+												<Edit className="h-4 w-4 mr-1" />{" "}
+												Edit
+											</Button>
+											<Button
+												variant="destructive"
+												className="text-sm md:text-base"
+												onClick={() =>
+													handleDelete(record._id)
+												}
+											>
+												<Trash2 className="h-4 w-4" />
+											</Button>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			)}
 		</div>
