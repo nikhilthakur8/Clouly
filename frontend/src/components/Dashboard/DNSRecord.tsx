@@ -343,6 +343,37 @@ export const DNSRecord = () => {
 											value: 1,
 											message: "Content cannot be empty",
 										},
+										validate: (value) => {
+											const type = form.getValues("type");
+											const ipv4Regex =
+												/^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
+											const ipv6Regex =
+												/^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(::1)|::)$/;
+											const hostnameRegex =
+												/^(?=.{1,253}$)([a-z0-9-]+\.)*[a-z0-9-]+$/;
+
+											if (
+												type === "A" &&
+												!ipv4Regex.test(value)
+											) {
+												return "Content must be a valid IPv4 address";
+											}
+											if (
+												type === "AAAA" &&
+												!ipv6Regex.test(value)
+											) {
+												return "Content must be a valid IPv6 address";
+											}
+											if (
+												type === "CNAME" &&
+												!hostnameRegex.test(value)
+											) {
+												return "Content must be a valid hostname for CNAME";
+											}
+											return true; // valid
+										},
+										setValueAs: (val) =>
+											val.toLowerCase().trim(), // lowercase and trim
 									}}
 									render={({ field }) => (
 										<FormItem>

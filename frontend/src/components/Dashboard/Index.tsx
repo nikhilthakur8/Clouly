@@ -152,6 +152,11 @@ export const Index = () => {
 											message:
 												"Subdomain Name must be at least 2 characters",
 										},
+										pattern: {
+											value: /^[a-z0-9-]+$/,
+											message:
+												"Subdomain name must be lowercase alphanumeric or hyphen",
+										},
 									}}
 									render={({ field }) => (
 										<FormItem>
