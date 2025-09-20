@@ -1,7 +1,6 @@
 import { HouseIcon, InboxIcon, ZapIcon, X } from "lucide-react";
 import { useState } from "react";
 
-import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
 	NavigationMenu,
