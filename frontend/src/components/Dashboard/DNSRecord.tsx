@@ -372,8 +372,6 @@ export const DNSRecord = () => {
 											}
 											return true; // valid
 										},
-										setValueAs: (val) =>
-											val.toLowerCase().trim(), // lowercase and trim
 									}}
 									render={({ field }) => (
 										<FormItem>
