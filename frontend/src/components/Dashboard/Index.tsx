@@ -73,10 +73,11 @@ export const Index = () => {
 			);
 			form.reset();
 			setOpen(false);
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error(err);
 			toast.error(
-				err.response?.data?.message ||
+				(err as { response?: { data?: { message?: string } } }).response
+					?.data?.message ||
 					"Failed to create subdomain. Please try again."
 			);
 		} finally {
@@ -92,10 +93,11 @@ export const Index = () => {
 			setDomains((prev) => prev.filter((d) => d._id !== deleteId));
 			toast.success("Subdomain deleted successfully");
 			setDeleteId(null);
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error(err);
 			toast.error(
-				err.response?.data?.message || "Failed to delete subdomain"
+				(err as { response?: { data?: { message?: string } } }).response
+					?.data?.message || "Failed to delete subdomain"
 			);
 		} finally {
 			setDeleting(false);

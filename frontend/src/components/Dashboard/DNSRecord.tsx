@@ -483,70 +483,62 @@ export const DNSRecord = () => {
 					No subdomains match your search.
 				</p>
 			) : (
-				<div className="overflow-x-auto border rounded-lg">
-					<div className="w-full overflow-x-auto">
-						<table className="w-full table-fixed text-left border-collapse">
-							<thead>
-								<tr className="bg-muted/40 text-sm md:text-base text-muted-foreground">
-									<th className="px-4 py-3 w-[10%]">Type</th>
-									<th className="px-4 py-3 w-[20%]">Name</th>
-									<th className="px-4 py-3 w-[40%]">
-										Content
-									</th>
-									<th className="px-4 py-3 w-[15%]">TTL</th>
-									<th className="px-4 py-3 w-[15%]">
-										Actions
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{filteredRecords.map((record) => (
-									<tr
-										key={record._id}
-										className="border-t hover:bg-muted/30 transition"
+				<div className="overflow-x-auto  border rounded-lg">
+					<table className="w-full text-left border-collapse">
+						<thead>
+							<tr className="bg-muted/40 text-sm md:text-base text-muted-foreground">
+								<th className="px-4 py-3 w-[15%]">Type</th>
+								<th className="px-4 py-3 w-[15%]">Name</th>
+								<th className="px-4 py-3 w-[40%]">Content</th>
+								<th className="px-4 py-3 w-[15%]">TTL</th>
+								<th className="px-4 py-3 w-[15%]">Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{filteredRecords.map((record) => (
+								<tr
+									key={record._id}
+									className="border-t hover:bg-muted/30 transition"
+								>
+									<td className="px-4 py-3 font-medium">
+										{record.type}
+									</td>
+									<td className="px-4 py-3">{record.name}</td>
+									<td
+										className="px-4 py-3 font-mono cursor-pointer"
+										onClick={handleCopy}
 									>
-										<td className="px-4 py-3 font-medium">
-											{record.type}
-										</td>
-										<td className="px-4 py-3">
-											{record.name}
-										</td>
-										<td
-											className="px-4 py-3 font-mono break-all cursor-pointer"
-											onClick={handleCopy}
+										{record.content}
+									</td>
+									<td className="px-4 py-3 text-muted-foreground">
+										<Clock className="inline h-4 w-4 mr-1" />{" "}
+										{record.ttl}s
+									</td>
+									<td className="px-4 py-3 flex gap-2">
+										<Button
+											variant="secondary"
+											className="text-sm md:text-base"
+											onClick={() =>
+												openEditDialog(record)
+											}
 										>
-											{record.content}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
-											<Clock className="inline h-4 w-4 mr-1" />{" "}
-											{record.ttl}s
-										</td>
-										<td className="px-4 py-3 flex gap-2">
-											<Button
-												variant="secondary"
-												className="text-sm md:text-base"
-												onClick={() =>
-													openEditDialog(record)
-												}
-											>
-												<Edit className="h-4 w-4 mr-1" />{" "}
-												Edit
-											</Button>
-											<Button
-												variant="destructive"
-												className="text-sm md:text-base"
-												onClick={() =>
-													handleDelete(record._id)
-												}
-											>
-												<Trash2 className="h-4 w-4" />
-											</Button>
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
+											<Edit className="h-4 w-4 mr-1" />{" "}
+											Edit
+										</Button>
+										<Button
+											variant="destructive"
+											className="text-sm md:text-base"
+											onClick={() =>
+												handleDelete(record._id)
+											}
+										>
+											<Trash2 className="h-4 w-4" />
+										</Button>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
 				</div>
 			)}
 		</div>
