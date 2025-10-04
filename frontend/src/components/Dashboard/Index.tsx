@@ -73,6 +73,7 @@ export const Index = () => {
 			);
 			form.reset();
 			setOpen(false);
+			navigate(`/subdomain/${response.data.data._id}`);
 		} catch (err: unknown) {
 			console.error(err);
 			toast.error(
