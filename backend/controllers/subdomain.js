@@ -81,7 +81,7 @@ const handleDeleteSubdomain = async (req, res) => {
 	try {
 		const { subdomainId } = req.params;
 
-		const subdomain = await SubDomain.findOneAndDeleteM(
+		const subdomain = await SubDomain.findOneAndDelete(
 			{ _id: subdomainId },
 			{ session }
 		);
