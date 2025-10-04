@@ -81,7 +81,7 @@ const handleDeleteSubdomain = async (req, res) => {
 	try {
 		const { subdomainId } = req.params;
 
-		const subdomain = await SubDomain.findOneAndDelete(
+		const subdomain = await SubDomain.findOneAndDeleteM(
 			{ _id: subdomainId },
 			{ session }
 		);
@@ -96,7 +96,10 @@ const handleDeleteSubdomain = async (req, res) => {
 		}
 
 		await Promise.all([
-			Record.deleteMany({ subdomain: subdomainId }).session(session),
+			Record.deleteMany({
+				name: subdomain.name,
+				zone: process.env.EXT_ZONE,
+			}).session(session),
 			DNSRecord.deleteMany({ subdomain: subdomainId }).session(session),
 		]);
 
