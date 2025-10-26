@@ -29,7 +29,6 @@ const recordSchema = new mongoose.Schema(
 		},
 		deletedAt: {
 			type: Date,
-			default: null,
 		},
 	},
 	{ timestamps: true }
