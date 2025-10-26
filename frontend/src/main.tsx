@@ -14,7 +14,7 @@ import { UserLayout } from "./Layout/UserLayout";
 import { AuthLayout } from "./Layout/AuthLayout";
 import { AuthCallback } from "./components/Auth/AuthCallback";
 import { UserProvider } from "./context/UserProvider";
-import { Index } from "./components/Dashboard/Index";
+import { SubDomain } from "./components/Dashboard/SubDomain";
 import { Analytics } from "@vercel/analytics/react";
 import { DNSRecord } from "./components/Dashboard/DNSRecord";
 import { Profile } from "./components/Profile/Profile";
@@ -28,7 +28,7 @@ const router = createBrowserRouter(
 				<Route index element={<Home />} />
 				<Route path="/learn-more" element={<LearnMore />} />
 				<Route path="/" element={<UserLayout />}>
-					<Route path="/dashboard" element={<Index />} />
+					<Route path="/dashboard" element={<SubDomain />} />
 					<Route
 						path="/subdomain/:subdomainId"
 						element={<DNSRecord />}

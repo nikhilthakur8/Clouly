@@ -41,6 +41,7 @@ app.get("/status", (req, res) => res.send("Chal rha hu bhai "));
 app.use("/api/auth/", require("./routes/auth"));
 app.use("/api/subdomain", authenticate, require("./routes/dns"));
 app.use("/api/user", authenticate, require("./routes/user"));
+app.use("/api/static", require("./routes/static"));
 
 app.listen(3000, async () => {
 	console.log("Server is running on port 3000");

@@ -23,19 +23,30 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Eye, Loader2, Trash2, Copy, ExternalLink, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 
 type DomainFormData = {
 	name: string;
 	notes?: string;
 };
 
-export const Index = () => {
-	const [domains, setDomains] = useState<any[]>([]);
+type SubDomainType = {
+	_id: string;
+	name: string;
+	notes?: string;
+};
+
+export const SubDomain = () => {
+	const [domains, setDomains] = useState<SubDomainType[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [deleteId, setDeleteId] = useState<string | null>(null);
 	const [deleting, setDeleting] = useState(false);
+	const [checkingAvailability, setCheckingAvailability] = useState<{
+		status: string;
+		color: string;
+	} | null>(null);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -62,6 +73,57 @@ export const Index = () => {
 			notes: undefined,
 		},
 	});
+
+	const checkSubdomainAvailability = async () => {
+		if (!form.getValues("name")) {
+			setCheckingAvailability(null);
+			return;
+		}
+		setCheckingAvailability({
+			status: "Checking Availability...",
+			color: "text-yellow-500",
+		});
+		try {
+			const response = await api.get(
+				"/static/check-subdomain-availability",
+				{
+					params: {
+						name: form.getValues("name").toString().toLowerCase(),
+					},
+				}
+			);
+			if (response.data.available) {
+				setCheckingAvailability({
+					status: "Woah! It's Available",
+					color: "text-green-500",
+				});
+			} else {
+				setCheckingAvailability({
+					status: "Sorry, already taken",
+					color: "text-red-500",
+				});
+			}
+		} catch (error) {
+			setCheckingAvailability({
+				status: "Error checking availability",
+				color: "text-red-500",
+			});
+			console.error("Error checking subdomain availability", error);
+			if (isAxiosError(error) && error.response) {
+				toast.error(error.response.data.message);
+			} else {
+				toast.error(
+					"Error checking subdomain availability. Please try again."
+				);
+			}
+		}
+	};
+
+	useEffect(() => {
+		const timeout = setTimeout(checkSubdomainAvailability, 500);
+		return () => clearTimeout(timeout);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [form.watch("name")]);
 
 	const onSubmit = async (values: DomainFormData) => {
 		try {
@@ -145,39 +207,55 @@ export const Index = () => {
 								onSubmit={form.handleSubmit(onSubmit)}
 								className="space-y-4"
 							>
-								<FormField
-									control={form.control}
-									name="name"
-									rules={{
-										required: "Subdomain Name is required",
-										minLength: {
-											value: 2,
-											message:
-												"Subdomain Name must be at least 2 characters",
-										},
-										pattern: {
-											value: /^[a-z0-9-]+$/,
-											message:
-												"Subdomain name must be lowercase alphanumeric or hyphen",
-										},
-									}}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-base">
-												Subdomain Name
-											</FormLabel>
-											<FormControl>
-												<Input
-													autoComplete="off"
-													className="text-base"
-													placeholder="api, dashboard, nikhil, etc..."
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
+								<div>
+									<FormField
+										control={form.control}
+										name="name"
+										rules={{
+											required:
+												"Subdomain Name is required",
+											minLength: {
+												value: 2,
+												message:
+													"Subdomain Name must be at least 2 characters",
+											},
+											pattern: {
+												value: /^[a-z0-9-]+$/,
+												message:
+													"Subdomain name must be lowercase alphanumeric or hyphen",
+											},
+										}}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-base">
+													Subdomain Name
+												</FormLabel>
+												<FormControl>
+													<div className="flex items-center justify-center space-x-2">
+														<Input
+															autoComplete="off"
+															spellCheck={false}
+															className="text-base"
+															placeholder="daddy, dev, cornhub, etc ..."
+															{...field}
+														/>
+														<p className="text-lg">
+															.clouly.in
+														</p>
+													</div>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									{checkingAvailability && (
+										<p
+											className={`ml-2 mt-2 text-base ${checkingAvailability.color}`}
+										>
+											{checkingAvailability.status}
+										</p>
 									)}
-								/>
+								</div>
 
 								<FormField
 									control={form.control}

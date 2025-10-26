@@ -490,7 +490,7 @@ export const DNSRecord = () => {
 				<div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
 					<Globe className="h-8 w-8 text-primary" />
 					<p className="text-lg text-primary">No DNS records found</p>
-					<Button onClick={openCreateDialog}>
+					<Button onClick={openCreateDialog} className="md:text-base">
 						<Plus className="h-4 w-4 mr-2" /> Create Your First DNS
 						Record
 					</Button>
