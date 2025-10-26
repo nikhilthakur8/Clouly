@@ -27,11 +27,15 @@ const recordSchema = new mongoose.Schema(
 			type: Number,
 			default: 3600,
 		},
+		deletedAt: {
+			type: Date,
+			default: null,
+		},
 	},
 	{ timestamps: true }
 );
 
-recordSchema.index({ zone: 1, name: 1, type: 1 }, { unique: true });
+recordSchema.index({ deletedAt: 1 }, { expireAfterSeconds: 0 });
 
 const Record = mongoose.model("Record", recordSchema);
 

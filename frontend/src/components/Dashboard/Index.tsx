@@ -129,7 +129,7 @@ export const Index = () => {
 
 				<Dialog open={open} onOpenChange={setOpen}>
 					<DialogTrigger asChild>
-						<Button className="text-base">
+						<Button className="md:text-base">
 							<Plus /> Add SubDomain
 						</Button>
 					</DialogTrigger>

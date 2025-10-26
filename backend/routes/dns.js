@@ -1,8 +1,12 @@
 const {
 	authenticateSubdomainOwnership,
+	authenticate,
 } = require("../middleware/authenticate");
 const { validateBody } = require("../middleware/validateBody");
-const { dnsRecordZodSchema } = require("../validations/dnsRecordSchema");
+const {
+	dnsRecordZodSchema,
+	dnsVerificationZodSchema,
+} = require("../validations/dnsRecordSchema");
 const subdomainRouter = require("express").Router();
 const { subdomainZodSchema } = require("../validations/subDomainSchema");
 const {
@@ -17,6 +21,7 @@ const {
 	handleGetAllDNSRecords,
 	handleUpdateDNSRecord,
 	handleGetDNSRecord,
+	handleVerifyDomain,
 } = require("../controllers/dns");
 
 subdomainRouter.post(
@@ -24,10 +29,7 @@ subdomainRouter.post(
 	validateBody(subdomainZodSchema),
 	handleCreateSubdomain
 );
-subdomainRouter.get(
-	"/",
-	handleGetAllSubdomains
-);
+subdomainRouter.get("/", handleGetAllSubdomains);
 subdomainRouter.get(
 	"/:subdomainId",
 	authenticateSubdomainOwnership,
@@ -69,6 +71,12 @@ subdomainRouter.delete(
 	"/:subdomainId/dns/:dnsRecordId",
 	authenticateSubdomainOwnership,
 	handleDeleteDNSRecord
+);
+
+subdomainRouter.post(
+	"/verify-domain",
+	validateBody(dnsVerificationZodSchema),
+	handleVerifyDomain
 );
 
 module.exports = subdomainRouter;

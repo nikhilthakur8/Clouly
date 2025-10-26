@@ -39,7 +39,10 @@ import {
 	Clock,
 	Copy,
 	CopyCheck,
+	ShieldCheck,
 } from "lucide-react";
+import { DialogDescription } from "@radix-ui/react-dialog";
+import axios from "axios";
 
 type DNSRecordFormData = {
 	type: "A" | "AAAA" | "TXT" | "CNAME";
@@ -75,7 +78,7 @@ export const DNSRecord = () => {
 	const [open, setOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [editingRecord, setEditingRecord] = useState<DNSRecord | null>(null);
-
+	const [verifyDomainOpen, setVerifyDomainOpen] = useState(false);
 	const ttlOptions = [
 		{ value: "3600", label: "3600 - 1 hour" },
 		{ value: "7200", label: "7200 - 2 hours" },
@@ -199,7 +202,7 @@ export const DNSRecord = () => {
 
 	const openCreateDialog = () => {
 		setEditingRecord(null);
-		form.reset({ type: "A", content: "", ttl: 3600 });
+		form.reset({ type: "CNAME", content: "", ttl: 3600 });
 		setOpen(true);
 	};
 
@@ -274,193 +277,207 @@ export const DNSRecord = () => {
 						</div>
 					</div>
 				</div>
-				<Dialog open={open} onOpenChange={setOpen}>
-					<DialogTrigger asChild>
-						<Button
-							onClick={openCreateDialog}
-							className="text-base"
-						>
-							<Plus className="h-4 w-4" />
-							Add DNS Record
-						</Button>
-					</DialogTrigger>
-					<DialogContent className="sm:max-w-md">
-						<DialogHeader>
-							<DialogTitle className="text-lg">
-								{editingRecord
-									? "Edit DNS Record"
-									: "Add DNS Record"}
-							</DialogTitle>
-						</DialogHeader>
-
-						<Form {...form}>
-							<form
-								onSubmit={form.handleSubmit(
-									handleCreateOrUpdate
-								)}
-								className="space-y-6"
+				<div className="space-x-2">
+					<DomainVerification
+						verifyDomainOpen={verifyDomainOpen}
+						setVerifyDomainOpen={setVerifyDomainOpen}
+					/>
+					<Dialog open={open} onOpenChange={setOpen}>
+						<DialogTrigger asChild>
+							<Button
+								onClick={openCreateDialog}
+								className="md:text-base"
 							>
-								<FormField
-									control={form.control}
-									name="type"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-base">
-												Record Type
-											</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-											>
-												<FormControl>
-													<SelectTrigger className="text-base">
-														<SelectValue placeholder="Select record type" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{recordTypes.map((type) => (
-														<SelectItem
-															key={type.value}
-															value={type.value}
-															className="text-base"
-														>
-															{type.label}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
+								<Plus className="h-4 w-4" />
+								Add DNS Record
+							</Button>
+						</DialogTrigger>
+						<DialogContent className="sm:max-w-md">
+							<DialogHeader>
+								<DialogTitle className="text-lg">
+									{editingRecord
+										? "Edit DNS Record"
+										: "Add DNS Record"}
+								</DialogTitle>
+							</DialogHeader>
+
+							<Form {...form}>
+								<form
+									onSubmit={form.handleSubmit(
+										handleCreateOrUpdate
 									)}
-								/>
-
-								<FormField
-									control={form.control}
-									name="content"
-									rules={{
-										required: "Content is required",
-										minLength: {
-											value: 1,
-											message: "Content cannot be empty",
-										},
-										validate: (value) => {
-											const type = form.getValues("type");
-											const ipv4Regex =
-												/^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
-											const ipv6Regex =
-												/^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(::1)|::)$/;
-											const hostnameRegex =
-												/^(?=.{1,253}$)([a-z0-9-]+\.)*[a-z0-9-]+$/;
-
-											if (
-												type === "A" &&
-												!ipv4Regex.test(value)
-											) {
-												return "Content must be a valid IPv4 address";
-											}
-											if (
-												type === "AAAA" &&
-												!ipv6Regex.test(value)
-											) {
-												return "Content must be a valid IPv6 address";
-											}
-											if (
-												type === "CNAME" &&
-												!hostnameRegex.test(value)
-											) {
-												return "Content must be a valid hostname for CNAME";
-											}
-											return true; // valid
-										},
-									}}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-base">
-												Content
-											</FormLabel>
-											<FormControl>
-												<Input
-													autoComplete="off"
-													className="text-base"
-													placeholder={getPlaceholder(
-														form.watch("type")
-													)}
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
-									name="ttl"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel className="text-base">
-												TTL (seconds)
-											</FormLabel>
-											<Select
-												onValueChange={(value) =>
-													field.onChange(
-														parseInt(value)
-													)
-												}
-												defaultValue={field.value.toString()}
-											>
-												<FormControl>
-													<SelectTrigger className="text-base">
-														<SelectValue placeholder="Select TTL" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{ttlOptions.map(
-														(option) => (
-															<SelectItem
-																key={
-																	option.value
-																}
-																value={
-																	option.value
-																}
-																className="text-base"
-															>
-																{option.label}
-															</SelectItem>
-														)
-													)}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<DialogFooter>
-									<Button
-										type="submit"
-										className="text-base"
-										disabled={saving}
-									>
-										{saving ? (
-											<>
-												<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-												{editingRecord
-													? "Updating..."
-													: "Creating..."}
-											</>
-										) : editingRecord ? (
-											"Update Record"
-										) : (
-											"Create Record"
+									className="space-y-6"
+								>
+									<FormField
+										control={form.control}
+										name="type"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-base">
+													Record Type
+												</FormLabel>
+												<Select
+													onValueChange={
+														field.onChange
+													}
+													defaultValue={field.value}
+												>
+													<FormControl>
+														<SelectTrigger className="text-base">
+															<SelectValue placeholder="Select record type" />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														{recordTypes.map(
+															(type) => (
+																<SelectItem
+																	key={
+																		type.value
+																	}
+																	value={
+																		type.value
+																	}
+																	className="text-base"
+																>
+																	{type.label}
+																</SelectItem>
+															)
+														)}
+													</SelectContent>
+												</Select>
+												<FormMessage />
+											</FormItem>
 										)}
-									</Button>
-								</DialogFooter>
-							</form>
-						</Form>
-					</DialogContent>
-				</Dialog>
+									/>
+									<FormField
+										control={form.control}
+										name="content"
+										rules={{
+											required: "Content is required",
+											minLength: {
+												value: 1,
+												message:
+													"Content cannot be empty",
+											},
+											validate: (value) => {
+												const type =
+													form.getValues("type");
+												const ipv4Regex =
+													/^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
+												const ipv6Regex =
+													/^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(::1)|::)$/;
+												const hostnameRegex =
+													/^(?=.{1,253}$)((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+([A-Za-z]{2,}|xn--[A-Za-z0-9]+)\.?$/;
+												if (
+													type === "A" &&
+													!ipv4Regex.test(value)
+												) {
+													return "Content must be a valid IPv4 address";
+												}
+												if (
+													type === "AAAA" &&
+													!ipv6Regex.test(value)
+												) {
+													return "Content must be a valid IPv6 address";
+												}
+												if (
+													type === "CNAME" &&
+													!hostnameRegex.test(value)
+												) {
+													return "Content must be a valid hostname for CNAME";
+												}
+												return true; // valid
+											},
+										}}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-base">
+													Content
+												</FormLabel>
+												<FormControl>
+													<Input
+														autoComplete="off"
+														className="text-base"
+														placeholder={getPlaceholder(
+															form.watch("type")
+														)}
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="ttl"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-base">
+													TTL (seconds)
+												</FormLabel>
+												<Select
+													onValueChange={(value) =>
+														field.onChange(
+															parseInt(value)
+														)
+													}
+													defaultValue={field.value.toString()}
+												>
+													<FormControl>
+														<SelectTrigger className="text-base">
+															<SelectValue placeholder="Select TTL" />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														{ttlOptions.map(
+															(option) => (
+																<SelectItem
+																	key={
+																		option.value
+																	}
+																	value={
+																		option.value
+																	}
+																	className="text-base"
+																>
+																	{
+																		option.label
+																	}
+																</SelectItem>
+															)
+														)}
+													</SelectContent>
+												</Select>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<DialogFooter>
+										<Button
+											type="submit"
+											className="text-base"
+											disabled={saving}
+										>
+											{saving ? (
+												<>
+													<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+													{editingRecord
+														? "Updating..."
+														: "Creating..."}
+												</>
+											) : editingRecord ? (
+												"Update Record"
+											) : (
+												"Create Record"
+											)}
+										</Button>
+									</DialogFooter>
+								</form>
+							</Form>
+						</DialogContent>
+					</Dialog>
+				</div>
 			</div>
 			<Input
 				placeholder="Search DNS Records..."
@@ -542,5 +559,168 @@ export const DNSRecord = () => {
 				</div>
 			)}
 		</div>
+	);
+};
+
+const DomainVerification = ({
+	setVerifyDomainOpen,
+	verifyDomainOpen,
+}: {
+	setVerifyDomainOpen: (open: boolean) => void;
+	verifyDomainOpen: boolean;
+}) => {
+	type DomainVerifyData = {
+		name: string;
+		content: string;
+	};
+
+	const form = useForm<DomainVerifyData>({
+		defaultValues: {
+			name: "_vercel",
+			content: "",
+		},
+	});
+	const [saving, setSaving] = useState(false);
+	const verificationCompany = [
+		{
+			value: "_vercel",
+			label: "Vercel",
+		},
+	];
+
+	const openDialog = () => {
+		setVerifyDomainOpen(true);
+		form.reset({ name: "_vercel", content: "" });
+	};
+
+	const handleVerifyDomain = async (values: DomainVerifyData) => {
+		try {
+			setSaving(true);
+			// API call to verify domain would go here
+			await api.post("/subdomain/verify-domain", values);
+			toast.success("Domain Verification Record Created");
+			setVerifyDomainOpen(false);
+			form.reset();
+		} catch (err: unknown) {
+			if (axios.isAxiosError(err)) {
+				toast.error(err.response?.data?.message);
+			} else {
+				toast.error("Failed to create domain verification record");
+			}
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	return (
+		<Dialog open={verifyDomainOpen} onOpenChange={setVerifyDomainOpen}>
+			<DialogTrigger asChild>
+				<Button onClick={openDialog} className="md:text-base">
+					<ShieldCheck className="h-4 w-4" />
+					Verify Domain
+				</Button>
+			</DialogTrigger>
+			<DialogContent className="sm:max-w-md">
+				<DialogHeader>
+					<DialogTitle className="text-lg">Verify Domain</DialogTitle>
+					<DialogDescription className="text-muted-foreground">
+						This is used to verify ownership of domain in Vercel.{" "}
+					</DialogDescription>
+				</DialogHeader>
+
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(handleVerifyDomain)}
+						className="space-y-6"
+					>
+						<FormField
+							control={form.control}
+							name="name"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-base">
+										Choose Verification Company
+									</FormLabel>
+									<Select
+										onValueChange={field.onChange}
+										defaultValue={field.value}
+									>
+										<FormControl>
+											<SelectTrigger className="text-base">
+												<SelectValue placeholder="Select verification company" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											{verificationCompany.map((type) => (
+												<SelectItem
+													key={type.value}
+													value={type.value}
+													className="text-base"
+												>
+													{type.label}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="content"
+							rules={{
+								required: "Content is required",
+								minLength: {
+									value: 1,
+									message: "Content cannot be empty",
+								},
+								maxLength: {
+									value: 255,
+									message:
+										"Content must be at most 255 characters",
+								},
+							}}
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className="text-base">
+										Content
+									</FormLabel>
+									<FormControl>
+										<Input
+											autoComplete="off"
+											className="text-base"
+											placeholder={"Text Content"}
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<p className="text-red-700 text-xs  md:text-sm">
+							Note : This record will be automatically deleted
+							after 30 minutes.
+						</p>
+						<DialogFooter>
+							<Button
+								type="submit"
+								className="text-base"
+								disabled={saving}
+							>
+								{saving ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Saving...
+									</>
+								) : (
+									"Save"
+								)}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
+			</DialogContent>
+		</Dialog>
 	);
 };

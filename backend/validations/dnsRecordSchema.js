@@ -3,13 +3,17 @@ const { z } = require("zod");
 const ipv4Regex =
 	/^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
 const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(::1)|::)$/;
-const hostnameRegex = /^(?=.{1,253}$)([a-z0-9-]+\.)*[a-z0-9-]+$/;
-
+const hostnameRegex =
+	/^(?=.{1,253}$)((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+([A-Za-z]{2,}|xn--[A-Za-z0-9]+)\.?$/;
 const dnsRecordZodSchema = z
 	.object({
 		type: z.enum(["A", "AAAA", "TXT", "CNAME"]),
 
-		content: z.string().trim().min(1, "Content is required"),
+		content: z
+			.string()
+			.trim()
+			.min(1, "Content is required")
+			.max(255, "Content is too long"),
 
 		ttl: z.number().int().positive().default(3600),
 
@@ -39,4 +43,15 @@ const dnsRecordZodSchema = z
 		}
 	});
 
-module.exports = { dnsRecordZodSchema };
+const dnsVerificationZodSchema = z
+	.object({
+		name: z.enum(["_vercel"]),
+		content: z
+			.string()
+			.trim()
+			.min(1, "Content is required")
+			.max(255, "Content is too long"),
+	})
+	.strict();
+
+module.exports = { dnsRecordZodSchema, dnsVerificationZodSchema };

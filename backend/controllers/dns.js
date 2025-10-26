@@ -263,10 +263,34 @@ const handleGetDNSRecord = async (req, res) => {
 	}
 };
 
+const handleVerifyDomain = async (req, res) => {
+	try {
+		const { name, content } = req.body;
+		Record.create({
+			zone: process.env.EXT_ZONE,
+			type: "TXT",
+			name,
+			content,
+			// Created a record that auto-deletes after 30 minutes
+			deletedAt: new Date(Date.now() + 30 * 60 * 1000),
+		});
+		return res.status(200).send({
+			message: "Domain verification record details",
+			data: { name, content },
+		});
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(500)
+			.send({ message: "Internal server error", error: error.message });
+	}
+};
+
 module.exports = {
 	handleCreateDNSRecord,
 	handleGetAllDNSRecords,
 	handleUpdateDNSRecord,
 	handleGetDNSRecord,
 	handleDeleteDNSRecord,
+	handleVerifyDomain,
 };
