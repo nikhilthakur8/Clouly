@@ -59,13 +59,13 @@ export const Login = () => {
 	};
 
 	return (
-		<div className="min-h-svh bg-black flex items-center justify-center px-4 py-8">
-			<Card className="bg-black border border-neutral-800 rounded-xl w-full max-w-sm sm:max-w-md shadow-2xl">
+		<div className="min-h-svh flex items-center justify-center px-4 py-8">
+			<Card className="rounded-xl w-full max-w-sm sm:max-w-md shadow-2xl">
 				<CardHeader className="text-center">
-					<CardTitle className="text-gray-300 text-2xl sm:text-3xl font-bold">
+					<CardTitle className="text-2xl sm:text-3xl font-bold">
 						Clouly
 					</CardTitle>
-					<CardDescription className="text-zinc-400 text-sm sm:text-base">
+					<CardDescription className="text-sm sm:text-base">
 						Start your journey with Clouly
 					</CardDescription>
 				</CardHeader>
@@ -86,7 +86,6 @@ export const Login = () => {
 								},
 							})}
 							errors={errors.email?.message as string}
-							className="bg-zinc-900 text-white border border-white/20"
 						/>
 						<Input
 							placeholder="Password"
@@ -102,7 +101,6 @@ export const Login = () => {
 								setIsPasswordVisible,
 							}}
 							type={isPasswordVisible ? "text" : "password"}
-							className="bg-zinc-900 text-white border border-white/20"
 							errors={errors.password?.message as string}
 						/>
 						<Button
@@ -145,7 +143,7 @@ export const Login = () => {
 						>
 							<img
 								src="/github-icon.svg"
-								className="w-5 h-5"
+								className="w-5 h-5 rounded-full border bg-white"
 								alt="GitHub Icon"
 							/>
 							Continue with GitHub

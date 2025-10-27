@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import { Login } from "./components/Auth/Login";
 import { Register } from "./components/Auth/Register";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { Home } from "./components/Home/Home";
 import { UserLayout } from "./Layout/UserLayout";
 import { AuthLayout } from "./Layout/AuthLayout";
