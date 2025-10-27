@@ -21,6 +21,7 @@ import { Profile } from "./components/Profile/Profile";
 import { MainLayout } from "./Layout/MainLayout";
 import { Api } from "./components/Api/Api";
 import LearnMore from "./components/LearnMore";
+import { ThemeProvider } from "next-themes";
 const router = createBrowserRouter(
 	createRoutesFromElements(
 		<>
@@ -53,12 +54,19 @@ const rootElement = document.getElementById("root");
 if (rootElement) {
 	createRoot(rootElement).render(
 		<>
-			<UserProvider>
-				<RouterProvider router={router} />
-				<Toaster theme="dark" richColors position="bottom-right" />
-				<Analytics />
-				{/* <SpeedInsights /> */}
-			</UserProvider>
+			<ThemeProvider
+				attribute="class"
+				defaultTheme="system"
+				enableSystem
+				disableTransitionOnChange
+			>
+				<UserProvider>
+					<RouterProvider router={router} />
+					<Toaster theme="dark" richColors position="bottom-right" />
+					<Analytics />
+					{/* <SpeedInsights /> */}
+				</UserProvider>
+			</ThemeProvider>
 		</>
 	);
 } else {
