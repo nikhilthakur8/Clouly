@@ -4,118 +4,6 @@ const User = require("../models/User");
 const axios = require("axios");
 const { decode } = require("jsonwebtoken");
 
-function setSessionCookie(res, token) {
-	res.cookie("CLOULY_SESSION", token, {
-		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
-		sameSite: "None",
-		maxAge: 7 * 24 * 60 * 60 * 1000,
-		domain:
-			process.env.NODE_ENV === "production" ? ".clouly.in" : "localhost",
-	});
-}
-
-const handleLoginOrRegister = async (req, res) => {
-	try {
-		const { email, password, name, role } = req.body;
-
-		let user = await User.findOne({ email });
-
-		if (user) {
-			const valid = await bcrypt.compare(password, user.passwordHash);
-			if (!valid) {
-				return res.status(401).json({
-					message: "Invalid credentials",
-					error: "Invalid credentials",
-				});
-			}
-			const token = generateToken({ id: user._id });
-			return res.status(200).json({ message: "Login successful", token });
-		}
-
-		const passwordHash = await bcrypt.hash(password, 10);
-		user = await User.create({ email, passwordHash, name, role });
-
-		const token = generateToken({ id: user._id });
-		return res
-			.status(201)
-			.json({ message: "User created successfully", token });
-	} catch (error) {
-		console.error(error);
-		return res
-			.status(500)
-			.json({ message: "Internal server error", error: error.message });
-	}
-};
-
-const handleLogin = async (req, res) => {
-	try {
-		const { email, password } = req.body;
-
-		const user = await User.findOne({ email });
-
-		if (!user) {
-			return res.status(401).json({
-				message: "Invalid credentials",
-				error: "Invalid credentials",
-			});
-		}
-
-		if (!user.passwordHash) {
-			return res.status(401).json({
-				message: "Please login using OAuth provider",
-				error: "Please login using OAuth provider",
-			});
-		}
-
-		const valid = await bcrypt.compare(password, user.passwordHash);
-		if (!valid) {
-			return res.status(401).json({
-				message: "Invalid credentials",
-				error: "Invalid credentials",
-			});
-		}
-
-		const token = generateToken({ id: user._id });
-		setSessionCookie(res, token);
-
-		return res.status(200).json({ message: "Login successful" });
-	} catch (error) {
-		console.error(error);
-		return res
-			.status(500)
-			.json({ message: "Internal server error", error: error.message });
-	}
-};
-const handleRegister = async (req, res) => {
-	try {
-		const { email, password, name } = req.body;
-		const existingUser = await User.findOne({ email });
-		if (existingUser) {
-			return res.status(400).json({
-				message: "User already exists",
-				error: "User already exists",
-			});
-		}
-
-		const passwordHash = await bcrypt.hash(password, 10);
-		const user = await User.create({ email, passwordHash, name });
-
-		const token = generateToken({ id: user._id });
-
-		setSessionCookie(res, token);
-
-		return res
-			.status(201)
-			.json({ message: "User created successfully", user });
-	} catch (error) {
-		console.error(error);
-		return res
-			.status(500)
-			.json({ message: "Internal server error", error: error.message });
-	}
-};
-
 async function exchangeCodeForToken(provider, code) {
 	if (!code) throw new Error("Missing authorization code");
 
@@ -209,12 +97,11 @@ const handleOAuthCallback = async (req, res) => {
 
 		const { user, isNewUser } = await upsertUser(userInfo);
 
-		// Set session cookie
 		const token = generateToken({ id: user._id });
-		setSessionCookie(res, token);
 
 		return res.json({
 			success: true,
+			token,
 			message: isNewUser
 				? "Account created successfully."
 				: "Account logged in successfully.",
@@ -232,8 +119,7 @@ async function handleLogout(req, res) {
 	res.clearCookie("CLOULY_SESSION", {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "None",
-		maxAge: 7 * 24 * 60 * 60 * 1000,
+		maxAge: 24 * 60 * 60 * 1000,
 		domain:
 			process.env.NODE_ENV === "production" ? ".clouly.in" : "localhost",
 	});
@@ -241,9 +127,6 @@ async function handleLogout(req, res) {
 }
 
 module.exports = {
-	handleLoginOrRegister,
 	handleOAuthCallback,
-	handleLogin,
-	handleRegister,
 	handleLogout,
 };
