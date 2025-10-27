@@ -62,7 +62,7 @@ if (rootElement) {
 			>
 				<UserProvider>
 					<RouterProvider router={router} />
-					<Toaster theme="dark" richColors position="bottom-right" />
+					<Toaster richColors position="bottom-right" />
 					<Analytics />
 					{/* <SpeedInsights /> */}
 				</UserProvider>
