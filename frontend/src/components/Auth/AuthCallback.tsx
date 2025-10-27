@@ -27,6 +27,8 @@ export const AuthCallback = () => {
 				});
 
 				if (response.data.success) {
+					const token = response.data.token;
+					localStorage.setItem("CLOULY_SESSION", token);
 					toast.success(response.data.message || "Login successful!");
 					if (response.data) navigate(redirectUri);
 				} else {

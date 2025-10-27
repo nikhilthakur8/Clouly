@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
 import {
 	Card,
 	CardContent,
@@ -9,25 +8,12 @@ import {
 	CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { getGithubOAuthLink, getGoogleOAuthLink } from "../../utils/oauthLink";
-import { toast } from "sonner";
-import api from "../../api/api";
-type LoginFormData = {
-	email: string;
-	password: string;
-};
 export const Login = () => {
 	const [loading, setLoading] = useState(false);
 	const [searchParams] = useSearchParams();
-	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 	const redirectUri = searchParams.get("redirect_uri") || "/";
-	const navigate = useNavigate();
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-	} = useForm<LoginFormData>();
+
 	useEffect(() => {
 		window.document.title = "Login - Clouly";
 	}, []);
@@ -41,21 +27,6 @@ export const Login = () => {
 		setLoading(true);
 		const authUrl = await getGithubOAuthLink(redirectUri);
 		window.location.href = authUrl;
-	};
-	const onSubmit = async (data: LoginFormData) => {
-		setLoading(true);
-		try {
-			const response = await api.post("/auth/login", data);
-			toast.success("Welcome to Clouly!");
-			if (response.data) navigate(redirectUri);
-		} catch (error: any) {
-			console.error("Login failed:", error);
-			toast.error(
-				error?.response?.data?.message || "Something went wrong"
-			);
-		} finally {
-			setLoading(false);
-		}
 	};
 
 	return (
@@ -71,54 +42,6 @@ export const Login = () => {
 				</CardHeader>
 
 				<CardContent className="space-y-4">
-					<form
-						onSubmit={handleSubmit(onSubmit)}
-						className="space-y-4"
-					>
-						<Input
-							type="email"
-							placeholder="Email"
-							{...register("email", {
-								required: "Email is required",
-								pattern: {
-									value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-									message: "Invalid email address",
-								},
-							})}
-							errors={errors.email?.message as string}
-						/>
-						<Input
-							placeholder="Password"
-							{...register("password", {
-								required: "Password is required",
-								minLength: {
-									value: 6,
-									message: "Minimum 6 characters",
-								},
-							})}
-							passwordField={{
-								isPasswordVisible,
-								setIsPasswordVisible,
-							}}
-							type={isPasswordVisible ? "text" : "password"}
-							errors={errors.password?.message as string}
-						/>
-						<Button
-							type="submit"
-							className="w-full !text-base"
-							disabled={loading}
-							variant="default"
-						>
-							{loading ? "Logging in..." : "Login"}
-						</Button>
-					</form>
-
-					<div className="flex items-center gap-2 my-2">
-						<hr className="flex-1 border-white/20" />
-						<span className="text-zinc-400 text-sm">OR</span>
-						<hr className="flex-1 border-white/20" />
-					</div>
-
 					{/* Social Login Buttons */}
 					<div className="space-y-2">
 						<Button
@@ -148,16 +71,6 @@ export const Login = () => {
 							/>
 							Continue with GitHub
 						</Button>
-					</div>
-
-					<div className="mt-4 text-center text-xs sm:text-sm text-zinc-400">
-						Don't have an account?{" "}
-						<Link
-							to="/register"
-							className="underline hover:text-white"
-						>
-							Register
-						</Link>
 					</div>
 				</CardContent>
 			</Card>

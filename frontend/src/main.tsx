@@ -3,11 +3,11 @@ import "./index.css";
 import {
 	createBrowserRouter,
 	createRoutesFromElements,
+	Navigate,
 	Route,
 	RouterProvider,
 } from "react-router-dom";
 import { Login } from "./components/Auth/Login";
-import { Register } from "./components/Auth/Register";
 import { Toaster } from "@/components/ui/sonner";
 import { Home } from "./components/Home/Home";
 import { UserLayout } from "./Layout/UserLayout";
@@ -41,7 +41,7 @@ const router = createBrowserRouter(
 			<Route element={<AuthLayout />}>
 				<Route index element={<Home />} />
 				<Route path="/login" element={<Login />} />
-				<Route path="/register" element={<Register />} />
+				<Route path="/register" element={<Navigate to={"/login"} />} />
 				<Route
 					path="/auth/:provider/callback"
 					element={<AuthCallback />}

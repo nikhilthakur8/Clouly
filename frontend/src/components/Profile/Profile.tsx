@@ -38,6 +38,7 @@ export const Profile = () => {
 		setLoading(true);
 		try {
 			await api.post("/auth/logout");
+			localStorage.removeItem("CLOULY_SESSION");
 			setUser(null);
 			navigate("/");
 		} catch (error) {
