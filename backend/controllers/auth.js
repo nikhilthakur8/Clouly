@@ -10,6 +10,8 @@ function setSessionCookie(res, token) {
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "None",
 		maxAge: 7 * 24 * 60 * 60 * 1000,
+		domain:
+			process.env.NODE_ENV === "production" ? ".clouly.in" : "localhost",
 	});
 }
 
@@ -232,6 +234,8 @@ async function handleLogout(req, res) {
 		secure: process.env.NODE_ENV === "production",
 		sameSite: "None",
 		maxAge: 7 * 24 * 60 * 60 * 1000,
+		domain:
+			process.env.NODE_ENV === "production" ? ".clouly.in" : "localhost",
 	});
 	return res.json({ message: "Logged out successfully" });
 }
