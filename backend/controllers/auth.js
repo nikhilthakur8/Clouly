@@ -8,10 +8,8 @@ function setSessionCookie(res, token) {
 	res.cookie("CLOULY_SESSION", token, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "Strict",
+		sameSite: "None",
 		maxAge: 7 * 24 * 60 * 60 * 1000,
-		domain:
-			process.env.NODE_ENV === "production" ? ".clouly.in" : "localhost",
 	});
 }
 
@@ -232,10 +230,8 @@ async function handleLogout(req, res) {
 	res.clearCookie("CLOULY_SESSION", {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "Strict",
+		sameSite: "None",
 		maxAge: 7 * 24 * 60 * 60 * 1000,
-		domain:
-			process.env.NODE_ENV === "production" ? ".clouly.in" : "localhost",
 	});
 	return res.json({ message: "Logged out successfully" });
 }
