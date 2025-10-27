@@ -10,13 +10,12 @@ type props = {
 };
 
 export const AnimatedThemeToggler = ({ className }: props) => {
-	const { theme, setTheme } = useTheme();
+	const { resolvedTheme, setTheme } = useTheme();
 	const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 	const buttonRef = useRef<HTMLButtonElement | null>(null);
-
 	useEffect(() => {
-		setIsDarkMode(theme === "dark");
-	}, [theme]);
+		setIsDarkMode(resolvedTheme === "dark");
+	}, [resolvedTheme]);
 
 	const changeTheme = async () => {
 		const nextTheme = isDarkMode ? "light" : "dark";
@@ -24,7 +23,7 @@ export const AnimatedThemeToggler = ({ className }: props) => {
 
 		await document.startViewTransition(() => {
 			flushSync(() => {
-				const dark = document.documentElement.classList.toggle("dark", nextTheme === "dark");
+				const dark = document.documentElement.classList.toggle("dark");
 				setIsDarkMode(dark);
 				setTheme(nextTheme);
 			});
