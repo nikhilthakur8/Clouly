@@ -15,6 +15,9 @@ const {
 	handleGetAllSubdomains,
 	handleGetSubdomain,
 } = require("../controllers/subdomain");
+
+const { dnsWriteLimiter } = require("../service/limiter");
+
 const {
 	handleCreateDNSRecord,
 	handleDeleteDNSRecord,
@@ -26,6 +29,7 @@ const {
 
 subdomainRouter.post(
 	"/",
+	dnsWriteLimiter,
 	validateBody(subdomainZodSchema),
 	handleCreateSubdomain
 );
@@ -43,6 +47,7 @@ subdomainRouter.delete(
 
 subdomainRouter.post(
 	"/:subdomainId/dns",
+	dnsWriteLimiter,
 	authenticateSubdomainOwnership,
 	validateBody(dnsRecordZodSchema),
 	handleCreateDNSRecord
@@ -56,6 +61,7 @@ subdomainRouter.get(
 
 subdomainRouter.put(
 	"/:subdomainId/dns/:dnsRecordId",
+	dnsWriteLimiter,
 	authenticateSubdomainOwnership,
 	validateBody(dnsRecordZodSchema),
 	handleUpdateDNSRecord

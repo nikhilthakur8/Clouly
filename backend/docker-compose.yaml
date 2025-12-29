@@ -1,0 +1,8 @@
+services:
+    app:
+        build: .
+        container_name: clouly_backend
+        ports:
+            - "3000:3000"
+        env_file: ".env"
+        restart: always

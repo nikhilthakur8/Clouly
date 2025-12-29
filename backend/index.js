@@ -4,11 +4,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const connectDB = require("./config/db");
 const { authenticate } = require("./middleware/authenticate");
-const {
-	normalLimiter,
-	dnsLimiter,
-	loginLimiter,
-} = require("./service/limiter");
+const { normalLimiter } = require("./service/limiter");
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
 
@@ -41,7 +37,7 @@ app.get("/status", (req, res) => res.send("Chal rha hu bhai "));
 app.use("/api/auth/", require("./routes/auth"));
 app.use("/api/subdomain", authenticate, require("./routes/dns"));
 app.use("/api/user", authenticate, require("./routes/user"));
-app.use("/api/static", require("./routes/static"));
+app.use("/api/static", normalLimiter, require("./routes/static"));
 
 app.listen(3000, async () => {
 	console.log("Server is running on port 3000");

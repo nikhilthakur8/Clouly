@@ -1,19 +1,8 @@
 const rateLimit = require("express-rate-limit");
 
-const loginLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000,
-	max: 5,
-	handler: (req, res, next) => {
-		res.status(429).json({
-			error: "Rate limit exceeded",
-			message: "You have sent too many requests. Try again later.",
-		});
-	},
-});
-
 const normalLimiter = rateLimit({
 	windowMs: 60 * 1000,
-	max: 100,
+	max: 60,
 	handler: (req, res, next) => {
 		res.status(429).json({
 			error: "Rate limit exceeded",
@@ -22,19 +11,24 @@ const normalLimiter = rateLimit({
 	},
 });
 
-const dnsLimiter = rateLimit({
-	windowMs: 10 * 60 * 1000,
+const dnsWriteLimiter = rateLimit({
+	windowMs: 60 * 1000,
 	max: 10,
+	keyGenerator: (req) => {
+		console.log(req.user._id.toString());
+		return req.user._id.toString() || rateLimit.ipKeyGenerator(req);
+	},
 	handler: (req, res, next) => {
 		res.status(429).json({
 			error: "Rate limit exceeded",
 			message: "You have sent too many requests. Try again later.",
 		});
 	},
+	standardHeaders: true,
+	legacyHeaders: false,
 });
 
 module.exports = {
-	loginLimiter,
 	normalLimiter,
-	dnsLimiter,
+	dnsWriteLimiter,
 };
